@@ -1,0 +1,78 @@
+name: UI screenshots (Windows)
+
+# Starts a real Paper server, then opens Outpost on each page and takes a screenshot.
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install ziglang && ./build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: exe
+          path: dist/Outpost.exe
+
+  screens:
+    needs: build
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: exe
+      - name: Create and start a server
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force D:\op | Out-Null
+          '{"windowX":0,"windowY":0,"windowW":1280,"windowH":800,"closeToTray":false}' | Set-Content -Encoding utf8 D:\op\settings.json
+          $p = Start-Process .\Outpost.exe -ArgumentList '--data','D:\op','--cli','create','--game','minecraft-java','--variant','paper','--name','Survival','--set','eula=true','--set','motd=Friends only','--ram','2048' -NoNewWindow -PassThru -Wait -RedirectStandardOutput c.txt
+          Get-Content c.txt | Select-Object -Last 5
+          $p = Start-Process .\Outpost.exe -ArgumentList '--data','D:\op','--cli','create','--game','valheim','--name','Viking Valheim','--set','password=hunter22','--no-install','yes' -NoNewWindow -PassThru -Wait -RedirectStandardOutput c2.txt
+          Get-Content c2.txt
+          $p = Start-Process .\Outpost.exe -ArgumentList '--data','D:\op','--cli','start','survival' -NoNewWindow -PassThru -Wait -RedirectStandardOutput s.txt
+          $p = Start-Process .\Outpost.exe -ArgumentList '--data','D:\op','--cli','wait','survival','running','300' -NoNewWindow -PassThru -Wait -RedirectStandardOutput w.txt
+          Get-Content w.txt | Select-Object -Last 3
+          $p = Start-Process .\Outpost.exe -ArgumentList '--data','D:\op','--cli','backup','survival' -NoNewWindow -PassThru -Wait -RedirectStandardOutput b.txt
+          $p = Start-Process .\Outpost.exe -ArgumentList '--data','D:\op','--cli','send','survival','say','Welcome to the server!' -NoNewWindow -PassThru -Wait
+      - name: Screenshots
+        shell: pwsh
+        run: |
+          Add-Type -AssemblyName System.Windows.Forms,System.Drawing
+          New-Item -ItemType Directory -Force shots | Out-Null
+          function Shot($name, $page, $tab, $theme) {
+            if ($theme) {
+              $cfg = Get-Content D:\op\settings.json | ConvertFrom-Json
+              $cfg | Add-Member -Force theme $theme
+              $cfg | ConvertTo-Json | Set-Content -Encoding utf8 D:\op\settings.json
+            }
+            "{""page"":$page,""server"":""survival"",""tab"":$tab}" | Set-Content -Encoding utf8 D:\op\shot-state.json
+            $p = Start-Process .\Outpost.exe -ArgumentList '--data','D:\op','--restore-state','D:\op\shot-state.json' -PassThru
+            Start-Sleep 7
+            $b = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+            $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
+            $g = [System.Drawing.Graphics]::FromImage($bmp)
+            $g.CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size)
+            $bmp.Save("shots\$name.png")
+            Start-Process .\Outpost.exe -ArgumentList '--data','D:\op','--quit' -Wait
+            Start-Sleep 2
+            if (-not $p.HasExited) { $p.Kill() }
+          }
+          Shot "1-overview" 0 0 $null
+          Shot "2-console" 0 1 $null
+          Shot "3-players" 0 2 $null
+          Shot "4-mods" 0 3 $null
+          Shot "5-backups" 0 4 $null
+          Shot "6-settings" 0 5 $null
+          Shot "7-wizard" 1 0 $null
+          Shot "8-app-settings" 2 0 $null
+          Shot "9-light" 0 0 "light"
+          Shot "10-midnight" 0 1 "midnight"
+          Copy-Item D:\op\outpost.log shots\ -ErrorAction SilentlyContinue
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screens
+          path: shots
