@@ -1,7 +1,7 @@
 ; Outpost installer (per-user, no admin needed). Built by CI with makensis.
 ; Silent install: Outpost-Setup.exe /S      Silent uninstall: uninstall.exe /S
 Unicode true
-!define VERSION "1.0.2"
+!define VERSION "1.0.3"
 !define APP "Outpost"
 !define UNINST "Software\Microsoft\Windows\CurrentVersion\Uninstall\Outpost"
 Name "${APP} ${VERSION}"

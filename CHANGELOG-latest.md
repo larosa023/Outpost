@@ -1,5 +1,6 @@
-## Outpost 1.0.2
+## Outpost 1.0.3
 
-- Much smoother scrolling and hovering everywhere, especially in Settings: text layouts are now built once and reused, and text that's scrolled out of view isn't drawn at all.
-- Fixed: in Outpost settings, the "a backup fails" switch was drawn on top of "a player joins". The three notification switches now each have their own row.
-- Fixed: the UPnP switch in a server's Network settings could sit in the wrong place when its description wrapped.
+- Smooth scrolling and animations at your monitor's full refresh rate (60, 144, 165 Hz…). Outpost now draws in step with the screen instead of on a timer that topped out around 64 frames a second and stuttered against the display. Movement uses real elapsed time, so it feels the same on any monitor.
+- Snappier scroll easing.
+- The tray tooltip is only updated when it changes.
+- If a frame ever takes too long to draw, Outpost notes it in outpost.log (Settings → About → Log file) to help track it down.

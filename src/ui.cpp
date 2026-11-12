@@ -54,13 +54,20 @@ void Ui(std::function<void()> fn) {
     if (!g_hwnd || !PostMessageW(g_hwnd, WM_OP_JOB, 0, (LPARAM)p)) delete p;
 }
 void Invalidate() { if (g_hwnd) InvalidateRect(g_hwnd, nullptr, FALSE); }
+// Animations are paced by the screen itself: each frame waits for the monitor's refresh (EndDraw), and while
+// something is moving the next frame is requested right away. Movement uses real elapsed time (g_dt), so it
+// looks the same at 60 Hz or 165 Hz.
 static DWORD g_animUntil = 0;
-static bool g_animTimer = false;
+static float g_dt = 1.f / 60;
 void StartAnim() {
-    if (g_cfg.animation == L"off") { Invalidate(); return; }
-    g_animUntil = GetTickCount() + 400;
-    if (!g_animTimer && g_hwnd) { SetTimer(g_hwnd, 2, 15, nullptr); g_animTimer = true; }
+    if (g_cfg.animation != L"off") g_animUntil = std::max<DWORD>(g_animUntil, GetTickCount() + 300);
     Invalidate();
+}
+// fraction of the remaining distance to cover this frame, for an ease that settles in about `ms`
+static float Ease(float ms) {
+    float t = AnimMs(ms);
+    if (t <= 0) return 1.f;
+    return 1.f - std::exp(-g_dt * 1000.f * 4.f / t);
 }
 float AnimMs(float ms) {
     if (g_cfg.animation == L"off") return 0;
@@ -316,7 +323,7 @@ void Toggle(float x, float y, bool on, std::function<void(bool)> changed, bool e
     wchar_t key[64]; swprintf(key, 64, L"%d:%d", (int)x, (int)y);
     float& k = g_knob.emplace(key, on ? 1.f : 0.f).first->second;
     float target = on ? 1.f : 0.f;
-    if (std::fabs(k - target) > 0.01f) { k += (target - k) * (AnimMs(150) ? 0.35f : 1.0f); StartAnim(); } else k = target;
+    if (std::fabs(k - target) > 0.01f) { k += (target - k) * Ease(140); StartAnim(); } else k = target;
     D2D1_COLOR_F track = Mix(g_t.surfaceStrong, g_t.accent, k);
     if (!enabled) track = Alpha(track, 0.45f);
     g_c.FillRound(r, S(11), track);
@@ -607,8 +614,16 @@ static void DrawSelfUpdateBar(float x0) {
     (void)x0;
 }
 
+static bool Animate();
 static void Paint() {
     if (!EnsureDevice()) return;
+    static LARGE_INTEGER freq{}, last{};
+    LARGE_INTEGER now;
+    if (!freq.QuadPart) QueryPerformanceFrequency(&freq);
+    QueryPerformanceCounter(&now);
+    g_dt = last.QuadPart ? std::min(0.1f, std::max(0.001f, (float)(now.QuadPart - last.QuadPart) / freq.QuadPart)) : 1.f / 60;
+    last = now;
+    bool moving = Animate();
     g_hot.clear();
     g_rt->BeginDraw();
     g_rt->SetTransform(D2D1::Matrix3x2F::Identity());
@@ -638,7 +653,20 @@ static void Paint() {
     }
     DrawModal();
     DrawToast();
+    LARGE_INTEGER drawn;
+    QueryPerformanceCounter(&drawn);
     if (g_rt->EndDraw() == D2DERR_RECREATE_TARGET) DiscardDevice();
+    {
+        // log slow frames (drawing only, not the wait for the screen), at most every 10 s
+        float ms = (float)(drawn.QuadPart - now.QuadPart) * 1000.f / freq.QuadPart;
+        static DWORD lastLog = 0;
+        if (ms > 12 && GetTickCount() - lastLog > 10000) {
+            lastLog = GetTickCount();
+            Log(L"slow frame: %.1f ms drawing (page %d, tab %d, %.0fx%.0f px)", ms, (int)g_page, g_tab, g_W, g_H);
+        }
+    }
+    // EndDraw waited for the monitor's refresh: ask for the next frame while anything still moves
+    if (moving || GetTickCount() < g_animUntil) InvalidateRect(g_hwnd, nullptr, FALSE);
 }
 
 static const HotRect* HitAt(float x, float y) {
@@ -658,6 +686,9 @@ static void TrayTip() {
     for (auto& v : g_servers) if (v.state == L"running") { ++running; players += (int)v.players.size(); }
     std::wstring tip = running ? L"Outpost: " + std::to_wstring(running) + (running == 1 ? L" server running, " : L" servers running, ") + std::to_wstring(players) + (players == 1 ? L" player" : L" players")
                                : L"Outpost: no servers running";
+    static std::wstring lastTip;
+    if (tip == lastTip) return;
+    lastTip = tip;
     g_nid.uFlags = NIF_TIP;
     wcsncpy(g_nid.szTip, tip.c_str(), 127);
     Shell_NotifyIconW(NIM_MODIFY, &g_nid);
@@ -879,7 +910,7 @@ static bool Animate() {
     bool more = false;
     for (auto& kv : g_scrolls) {
         ScrollArea& sa = kv.second;
-        if (std::fabs(sa.pos - sa.target) > 0.5f) { sa.pos += (sa.target - sa.pos) * 0.3f; more = true; }
+        if (std::fabs(sa.pos - sa.target) > 0.5f) { sa.pos += (sa.target - sa.pos) * Ease(110); more = true; }
         else sa.pos = sa.target;
     }
     return more || GetTickCount() < g_animUntil;
@@ -1044,10 +1075,7 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
         if (!g_focus.empty() && wp != VK_RETURN && wp != VK_ESCAPE && wp != VK_TAB && !(GetKeyState(VK_CONTROL) < 0 && wp < 32 && wp != 127 && wp != 8)) FieldChar((wchar_t)wp);
         return 0;
     case WM_TIMER:
-        if (wp == 2) {
-            if (!Animate()) { KillTimer(hwnd, 2); g_animTimer = false; }
-            Invalidate();
-        } else if (wp == 1) {
+        if (wp == 1) {
             // every second: caret, uptime labels, system stats, idle updates
             static int n = 0;
             ++n;
