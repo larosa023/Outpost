@@ -518,6 +518,7 @@ static D2D1_RECT_F g_activeView;
 float BeginScroll(ScrollArea& sa, const D2D1_RECT_F& vp) {
     sa.view = vp.bottom - vp.top;
     g_viewport = vp;
+    g_c.cull = vp;
     g_activeScroll = &sa;
     g_activeView = vp;
     g_rt->PushAxisAlignedClip(vp, D2D1_ANTIALIAS_MODE_ALIASED);
@@ -537,6 +538,7 @@ void EndScroll(ScrollArea& sa, float bottom) {
         g_c.FillRound(R(g_activeView.right - S(7), y, g_activeView.right - S(3), y + h), S(2), Alpha(g_t.subtext, In(g_activeView, g_mx, g_my) ? 0.45f : 0.2f));
     }
     g_viewport = {0, 0, 0, 0};
+    g_c.cull = {0, 0, 0, 0};
 }
 bool Visible(float top, float bottom) { return bottom >= g_viewport.top && top <= g_viewport.bottom; }
 

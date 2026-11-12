@@ -64,11 +64,8 @@ struct Canvas {
         br->SetColor(c);
         rt->FillEllipse(D2D1::Ellipse(D2D1::Point2F(cx, cy), r, r), br);
     }
-    void Text(const std::wstring& s, IDWriteTextFormat* f, const D2D1_RECT_F& r, D2D1_COLOR_F c) {
-        if (!f || s.empty()) return;
-        br->SetColor(c);
-        rt->DrawText(s.c_str(), (UINT32)s.size(), f, r, br, D2D1_DRAW_TEXT_OPTIONS_CLIP);
-    }
+    D2D1_RECT_F cull = {0, 0, 0, 0};   // when set, text outside it isn't drawn at all (scrolled away)
+    void Text(const std::wstring& s, IDWriteTextFormat* f, const D2D1_RECT_F& r, D2D1_COLOR_F c);
     void Glyph(wchar_t g, IDWriteTextFormat* f, const D2D1_RECT_F& r, D2D1_COLOR_F c) {
         wchar_t s[2] = {g, 0};
         Text(s, f, r, c);

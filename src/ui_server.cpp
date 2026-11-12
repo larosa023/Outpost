@@ -1228,10 +1228,11 @@ static std::wstring UpperStr(const std::wstring& s) { std::wstring o = s; for (a
 static float DrawNetwork(ServerView& v, float x, float y, float w) {
     std::wstring id = v.def.id;
     float cx;
+    float uy = y;
     y = Row(x, y, w, L"Automatic port forwarding (UPnP)", v.upnp == L"ok" ? L"Your router is forwarding the ports while the server runs." :
             v.upnp == L"failed" ? L"Your router refused: " + v.upnpError : v.upnp == L"unavailable" ? L"No UPnP router found. Forward the ports by hand (below)." :
             L"Asks your router to forward the ports while the server runs.", S(40), &cx);
-    Toggle(cx, y - D(14) - std::max(D(36), D(22)) , v.def.upnp, [id](bool on) { if (ServerView* s = FindServer(id)) { s->def.upnp = on; SaveServer(*s); } });
+    Toggle(cx, uy, v.def.upnp, [id](bool on) { if (ServerView* s = FindServer(id)) { s->def.upnp = on; SaveServer(*s); } });
     // firewall
     std::wstring fwText = v.firewall == 1 ? L"Rules are in place for this server's ports." : v.firewall == 0 ? L"No rules yet: people outside this PC can't connect." : L"Windows Firewall rules for this server's ports.";
     float fy = y;

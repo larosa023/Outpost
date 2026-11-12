@@ -654,22 +654,14 @@ void DrawAppSettings(float x0) {
     y = ARow(x, y, w, L"Keep running in the tray when closed", L"Servers keep running either way; the tray shows their status and notifications.", &cx, S(40));
     Toggle(cx, ry, g_cfg.closeToTray, [](bool on) { g_cfg.closeToTray = on; ConfigSave(); });
     ry = y;
-    y = ARow(x, y, w, L"Notify me when", L"", &cx, D(380));
-    {
-        float tx = cx;
-        auto chk = [&](const std::wstring& label, bool on, std::function<void(bool)> f) {
-            Toggle(tx, ry, on, f);
-            Text(label, tx + S(46), ry, D(120), F(12.5f), g_t.subtext, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_TEXT_ALIGNMENT_LEADING, S(22));
-            tx += S(46) + TextW(label, F(12.5f)) + D(18);
-        };
-        chk(L"a player joins", g_cfg.notifyJoin, [](bool b) { g_cfg.notifyJoin = b; ConfigSave(); });
-        chk(L"a server crashes", g_cfg.notifyCrash, [](bool b) { g_cfg.notifyCrash = b; ConfigSave(); });
-    }
+    y = ARow(x, y, w, L"Notify me when a player joins", L"Only while the Outpost window isn't in front.", &cx, S(40));
+    Toggle(cx, ry, g_cfg.notifyJoin, [](bool b) { g_cfg.notifyJoin = b; ConfigSave(); });
     ry = y;
-    y = ARow(x, y, w, L"", L"", &cx, D(380));
-    Toggle(cx, ry - D(40), g_cfg.notifyBackupFail, [](bool b) { g_cfg.notifyBackupFail = b; ConfigSave(); });
-    Text(L"a backup fails", cx + S(46), ry - D(40), D(160), F(12.5f), g_t.subtext, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_TEXT_ALIGNMENT_LEADING, S(22));
-    y -= D(36);
+    y = ARow(x, y, w, L"Notify me when a server crashes", L"", &cx, S(40));
+    Toggle(cx, ry, g_cfg.notifyCrash, [](bool b) { g_cfg.notifyCrash = b; ConfigSave(); });
+    ry = y;
+    y = ARow(x, y, w, L"Notify me when a backup fails", L"", &cx, S(40));
+    Toggle(cx, ry, g_cfg.notifyBackupFail, [](bool b) { g_cfg.notifyBackupFail = b; ConfigSave(); });
     ry = y;
     y = ARow(x, y, w, L"Hide my public IP", L"Masks your internet address on screen (handy when streaming). Copy still copies the real address.", &cx, S(40));
     Toggle(cx, ry, g_cfg.hidePublicIp, [](bool on) { g_cfg.hidePublicIp = on; ConfigSave(); });

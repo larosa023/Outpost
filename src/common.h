@@ -19,7 +19,7 @@
 #include <cstdint>
 
 #ifndef OUTPOST_VERSION
-#define OUTPOST_VERSION L"1.0.1"
+#define OUTPOST_VERSION L"1.0.2"
 #endif
 #define OUTPOST_REPO_OWNER L"larosa023"
 #define OUTPOST_REPO_NAME L"Outpost"

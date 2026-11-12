@@ -63,6 +63,23 @@ IDWriteTextFormat* Format(float size, DWRITE_FONT_WEIGHT weight, DWRITE_TEXT_ALI
     return f;
 }
 
+// Laying out text is the expensive part of drawing it: keep the layouts we've made and reuse them.
+static std::unordered_map<std::wstring, IDWriteTextLayout*> s_layouts;
+void Canvas::Text(const std::wstring& s, IDWriteTextFormat* f, const D2D1_RECT_F& r, D2D1_COLOR_F c) {
+    if (!f || s.empty()) return;
+    if (cull.right > cull.left && (r.bottom < cull.top || r.top > cull.bottom || r.right < cull.left || r.left > cull.right)) return;
+    float w = r.right - r.left, h = r.bottom - r.top;
+    if (w <= 0 || h <= 0) return;
+    if (s_layouts.size() > 3000) { for (auto& kv : s_layouts) kv.second->Release(); s_layouts.clear(); }
+    wchar_t k[64];
+    swprintf(k, 64, L"%p|%.1f|%.1f|", (void*)f, w, h);
+    std::wstring key = std::wstring(k) + s;
+    IDWriteTextLayout*& l = s_layouts[key];
+    if (!l && FAILED(dw->CreateTextLayout(s.c_str(), (UINT32)s.size(), f, w, h, &l))) { l = nullptr; s_layouts.erase(key); return; }
+    br->SetColor(c);
+    rt->DrawTextLayout(D2D1::Point2F(r.left, r.top), l, br, D2D1_DRAW_TEXT_OPTIONS_CLIP);
+}
+
 IDWriteTextFormat* MonoFormat(float size) {
     static std::map<int, IDWriteTextFormat*> cache;
     auto it = cache.find((int)(size * 10));

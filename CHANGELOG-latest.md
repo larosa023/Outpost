@@ -1,8 +1,5 @@
-## Outpost 1.0.1
+## Outpost 1.0.2
 
-- Settings pages are much smoother: text measurements are cached, and slow checks (old versions, Windows colors, Hangar) run every few seconds instead of every frame. Scrolling past switches no longer slows the app down over time.
-- Outpost redraws only when something under the mouse changes.
-- On wide or full-screen windows, Outpost settings, the new server wizard and each server's Settings tab are centered in a readable column.
-- Fixed: the "you're playing a game" notice could appear when Outpost itself filled the screen.
-- Fixed: Paper/Fabric config folders (like bStats or spark) were listed as plugins.
-- The Restore button in the backup card no longer spills out of the card on narrow windows.
+- Much smoother scrolling and hovering everywhere, especially in Settings: text layouts are now built once and reused, and text that's scrolled out of view isn't drawn at all.
+- Fixed: in Outpost settings, the "a backup fails" switch was drawn on top of "a player joins". The three notification switches now each have their own row.
+- Fixed: the UPnP switch in a server's Network settings could sit in the wrong place when its description wrapped.
