@@ -26,17 +26,21 @@ jobs:
       - name: Create and start a server
         shell: pwsh
         run: |
+          # Start-Process -Wait would also wait for the server's host process, which keeps running by design
+          function Cli([string[]]$a) {
+            $p = Start-Process .\Outpost.exe -ArgumentList (@('--data','D:\op','--cli') + $a) -NoNewWindow -PassThru -RedirectStandardOutput cli.txt
+            $p.WaitForExit()
+            Get-Content cli.txt | Select-Object -Last 6
+          }
           New-Item -ItemType Directory -Force D:\op | Out-Null
           '{"windowX":0,"windowY":0,"windowW":1280,"windowH":800,"closeToTray":false}' | Set-Content -Encoding utf8 D:\op\settings.json
-          $p = Start-Process .\Outpost.exe -ArgumentList '--data','D:\op','--cli','create','--game','minecraft-java','--variant','paper','--name','Survival','--set','eula=true','--set','motd=Friends only','--ram','2048' -NoNewWindow -PassThru -Wait -RedirectStandardOutput c.txt
-          Get-Content c.txt | Select-Object -Last 5
-          $p = Start-Process .\Outpost.exe -ArgumentList '--data','D:\op','--cli','create','--game','valheim','--name','Viking Valheim','--set','password=hunter22','--no-install','yes' -NoNewWindow -PassThru -Wait -RedirectStandardOutput c2.txt
-          Get-Content c2.txt
-          $p = Start-Process .\Outpost.exe -ArgumentList '--data','D:\op','--cli','start','survival' -NoNewWindow -PassThru -Wait -RedirectStandardOutput s.txt
-          $p = Start-Process .\Outpost.exe -ArgumentList '--data','D:\op','--cli','wait','survival','running','300' -NoNewWindow -PassThru -Wait -RedirectStandardOutput w.txt
-          Get-Content w.txt | Select-Object -Last 3
-          $p = Start-Process .\Outpost.exe -ArgumentList '--data','D:\op','--cli','backup','survival' -NoNewWindow -PassThru -Wait -RedirectStandardOutput b.txt
-          $p = Start-Process .\Outpost.exe -ArgumentList '--data','D:\op','--cli','send','survival','say','Welcome to the server!' -NoNewWindow -PassThru -Wait
+          Cli @('create','--game','minecraft-java','--variant','paper','--name','Survival','--set','eula=true','--set','motd=Friends only','--ram','2048')
+          Cli @('create','--game','valheim','--name','Viking Valheim','--set','password=hunter22','--no-install','yes')
+          Cli @('start','survival')
+          Cli @('wait','survival','running','300')
+          Cli @('backup','survival')
+          Cli @('send','survival','say','Welcome to the server!')
+          Cli @('send','survival','time','set','day')
       - name: Screenshots
         shell: pwsh
         run: |
