@@ -27,20 +27,20 @@ jobs:
         shell: pwsh
         run: |
           # Start-Process -Wait would also wait for the server's host process, which keeps running by design
-          function Cli([string]$line) {
+          function RunOp([string]$line) {
             $p = Start-Process -FilePath "$PWD\Outpost.exe" -ArgumentList "--data D:\op --cli $line" -NoNewWindow -PassThru -RedirectStandardOutput cli.txt
             $p.WaitForExit()
             Get-Content cli.txt | Select-Object -Last 6
           }
           New-Item -ItemType Directory -Force D:\op | Out-Null
           '{"windowX":0,"windowY":0,"windowW":1280,"windowH":800,"closeToTray":false}' | Set-Content -Encoding utf8 D:\op\settings.json
-          Cli 'create --game minecraft-java --variant paper --name Survival --set eula=true --set "motd=Friends only" --ram 2048'
-          Cli 'create --game valheim --name "Viking Valheim" --set password=hunter22 --no-install yes'
-          Cli 'start survival'
-          Cli 'wait survival running 300'
-          Cli 'backup survival'
-          Cli 'send survival say Welcome to the server!'
-          Cli 'send survival time set day'
+          RunOp 'create --game minecraft-java --variant paper --name Survival --set eula=true --set "motd=Friends only" --ram 2048'
+          RunOp 'create --game valheim --name "Viking Valheim" --set password=hunter22 --no-install yes'
+          RunOp 'start survival'
+          RunOp 'wait survival running 300'
+          RunOp 'backup survival'
+          RunOp 'send survival say Welcome to the server!'
+          RunOp 'send survival time set day'
       - name: Screenshots
         shell: pwsh
         run: |
