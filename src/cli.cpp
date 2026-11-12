@@ -262,7 +262,17 @@ int Main(int argc, wchar_t** argv) {
     if (!s_out || s_out == INVALID_HANDLE_VALUE || GetFileType(s_out) == FILE_TYPE_UNKNOWN) {
         if (AttachConsole(ATTACH_PARENT_PROCESS)) s_out = CreateFileW(L"CONOUT$", GENERIC_WRITE, FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr);
     }
-    // argv: [exe, --cli, command, ...]
+    // argv: [exe, (--data dir), --cli, command, ...]: drop everything up to --cli and any --data pair
+    std::vector<wchar_t*> args;
+    args.push_back(argv[0]);
+    bool seenCli = false;
+    for (int i = 1; i < argc; ++i) {
+        if (!wcscmp(argv[i], L"--data") && i + 1 < argc) { ++i; continue; }
+        if (!seenCli) { if (!wcscmp(argv[i], L"--cli")) { seenCli = true; args.push_back(argv[i]); } continue; }
+        args.push_back(argv[i]);
+    }
+    argc = (int)args.size();
+    argv = args.data();
     if (argc < 3) { Out(L"Usage: Outpost.exe --cli list|templates|create|install|start|stop|wait|send|backup|restore|status|delete|selftest|e2e"); return 2; }
     std::wstring cmd = argv[2];
     std::vector<std::wstring> a;
