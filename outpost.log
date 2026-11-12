@@ -1,0 +1,136 @@
+2026-11-12 18:48:54.119 [6504] 12 game templates loaded
+2026-11-12 18:48:54.123 [6504] server survival created (minecraft-java)
+2026-11-12 18:48:54.123 [6504] cli: Created survival in D:\op\servers\survival
+2026-11-12 18:48:54.123 [6504] install survival (minecraft-java paper latest)
+2026-11-12 18:48:54.125 [6504] cli:   Checking the newest version
+2026-11-12 18:48:54.261 [6504] cli:   Finding Java 25
+2026-11-12 18:48:54.647 [6504] cli:   Downloading Java 25 (55.9 MB) 0%
+2026-11-12 18:48:54.748 [6504] cli:   Downloading Java 25 (55.9 MB) 10%
+2026-11-12 18:48:54.768 [6504] cli:   Downloading Java 25 (55.9 MB) 20%
+2026-11-12 18:48:54.786 [6504] cli:   Downloading Java 25 (55.9 MB) 30%
+2026-11-12 18:48:54.806 [6504] cli:   Downloading Java 25 (55.9 MB) 40%
+2026-11-12 18:48:54.823 [6504] cli:   Downloading Java 25 (55.9 MB) 50%
+2026-11-12 18:48:54.841 [6504] cli:   Downloading Java 25 (55.9 MB) 60%
+2026-11-12 18:48:54.859 [6504] cli:   Downloading Java 25 (55.9 MB) 70%
+2026-11-12 18:48:54.884 [6504] cli:   Downloading Java 25 (55.9 MB) 80%
+2026-11-12 18:48:54.902 [6504] cli:   Downloading Java 25 (55.9 MB) 90%
+2026-11-12 18:48:54.920 [6504] cli:   Downloading Java 25 (55.9 MB) 100%
+2026-11-12 18:48:54.954 [6504] cli:   Unpacking Java 25
+2026-11-12 18:48:55.813 [6504] Java 25 installed
+2026-11-12 18:48:56.114 [6504] cli:   Downloading Paper 26.3 (52.7 MB) 0%
+2026-11-12 18:48:56.227 [6504] cli:   Downloading Paper 26.3 (52.7 MB) 10%
+2026-11-12 18:48:56.247 [6504] cli:   Downloading Paper 26.3 (52.7 MB) 20%
+2026-11-12 18:48:56.271 [6504] cli:   Downloading Paper 26.3 (52.7 MB) 30%
+2026-11-12 18:48:56.294 [6504] cli:   Downloading Paper 26.3 (52.7 MB) 40%
+2026-11-12 18:48:56.312 [6504] cli:   Downloading Paper 26.3 (52.7 MB) 50%
+2026-11-12 18:48:56.334 [6504] cli:   Downloading Paper 26.3 (52.7 MB) 60%
+2026-11-12 18:48:56.369 [6504] cli:   Downloading Paper 26.3 (52.7 MB) 70%
+2026-11-12 18:48:56.403 [6504] cli:   Downloading Paper 26.3 (52.7 MB) 80%
+2026-11-12 18:48:56.421 [6504] cli:   Downloading Paper 26.3 (52.7 MB) 90%
+2026-11-12 18:48:56.439 [6504] cli:   Downloading Paper 26.3 (52.7 MB) 100%
+2026-11-12 18:48:56.470 [6504] install survival: done, 26.3 (build 249)
+2026-11-12 18:48:56.472 [6504] cli: Ready: 26.3 (build 249)
+2026-11-12 18:48:56.514 [6596] 12 game templates loaded
+2026-11-12 18:48:56.518 [6596] server viking-valheim created (valheim)
+2026-11-12 18:48:56.518 [6596] cli: Created viking-valheim in D:\op\servers\viking-valheim
+2026-11-12 18:48:56.518 [6596] cli: Ready: 
+2026-11-12 18:48:56.536 [5624] 12 game templates loaded
+2026-11-12 18:48:56.559 [9576] host survival: starting (Outpost 1.0.2, pid 8496)
+2026-11-12 18:48:56.562 [9576] host survival: D:\op\runtime\java-25\bin\java.exe -Xms512M -Xmx2048M -jar paper.jar nogui
+2026-11-12 18:48:56.616 [5624] cli: Starting Survival
+2026-11-12 18:48:56.650 [5764] 12 game templates loaded
+2026-11-12 18:48:56.650 [5764] cli:   | Starting Survival (Minecraft: Java Edition 26.3 (build 249))…
+2026-11-12 18:48:56.701 [5764] cli:   | Downloading mojang_26.3.jar
+2026-11-12 18:48:57.897 [5764] cli:   | Applying patches
+2026-11-12 18:48:59.158 [5764] cli:   | Starting org.bukkit.craftbukkit.Main
+2026-11-12 18:49:00.060 [5764] cli:   | 2026-11-12T18:49:00.057843800Z ServerMain WARN Advanced terminal features are not available in this environment
+2026-11-12 18:49:00.272 [5764] cli:   | [18:49:00 INFO]: [bootstrap] Running Java 25 (OpenJDK 64-Bit Server VM 25.0.5+8-LTS; Eclipse Adoptium Temurin-25.0.5+8) on Windows Server 2025 10.0 (amd64)
+2026-11-12 18:49:00.272 [5764] cli:   | [18:49:00 INFO]: [bootstrap] Loading Paper 26.3-249-main@1a995d6 (2026-11-11T18:01:48Z) for Minecraft 26.3
+2026-11-12 18:49:00.272 [5764] cli:   | [18:49:00 INFO]: [PluginInitializerManager] Initializing plugins...
+2026-11-12 18:49:00.393 [5764] cli:   | [18:49:00 INFO]: [PluginInitializerManager] Initialized 0 plugins
+2026-11-12 18:49:03.541 [5764] cli:   | [18:49:03 INFO]: [ca.spottedleaf.dataconverter.minecraft.datatypes.MCTypeRegistry] Initialising converters for DataConverter...
+2026-11-12 18:49:03.650 [5764] cli:   | [18:49:03 INFO]: [com.destroystokyo.paper.profile.PaperServicesDiscoveryService] Environment: Environment[discoveryUrl=https://discovery.minecraftservices.com/minecraft/client, name=PROD]
+2026-11-12 18:49:04.041 [5764] cli:   | [18:49:04 INFO]: [ca.spottedleaf.dataconverter.minecraft.datatypes.MCTypeRegistry] Finished initialising converters for DataConverter in 492.0ms
+2026-11-12 18:49:04.143 [5764] cli:   | [18:49:04 INFO]: Found new data pack paper, loading it automatically
+2026-11-12 18:49:04.693 [5764] cli:   | [18:49:04 INFO]: No existing world data, creating new world
+2026-11-12 18:49:05.483 [5764] cli:   | [18:49:05 INFO]: Loaded 1866 advancements
+2026-11-12 18:49:05.571 [5764] cli:   | [18:49:05 INFO]: Starting minecraft server version 26.3
+2026-11-12 18:49:05.572 [5764] cli:   | [18:49:05 WARN]: ****************************
+2026-11-12 18:49:05.572 [5764] cli:   | [18:49:05 WARN]: YOU ARE RUNNING THIS SERVER AS AN ADMINISTRATIVE OR ROOT USER. THIS IS NOT ADVISED.
+2026-11-12 18:49:05.572 [5764] cli:   | [18:49:05 WARN]: YOU ARE OPENING YOURSELF UP TO POTENTIAL RISKS WHEN DOING THIS.
+2026-11-12 18:49:05.572 [5764] cli:   | [18:49:05 WARN]: FOR MORE INFORMATION, SEE https://madelinemiller.dev/blog/root-minecraft-server/
+2026-11-12 18:49:05.573 [5764] cli:   | [18:49:05 WARN]: ****************************
+2026-11-12 18:49:05.573 [5764] cli:   | [18:49:05 INFO]: Loading properties
+2026-11-12 18:49:05.617 [5764] cli:   | [18:49:05 INFO]: This server is running Paper version 26.3-249-main@1a995d6 (2026-11-11T18:01:48Z) (Implementing API version 26.3.build.249-stable)
+2026-11-12 18:49:05.710 [5764] cli:   | [18:49:05 INFO]: [spark] This server bundles the spark profiler. For more information please visit https://docs.papermc.io/paper/profiling
+2026-11-12 18:49:05.735 [5764] cli:   | [18:49:05 INFO]: Using 4 threads for Netty based IO
+2026-11-12 18:49:05.740 [5764] cli:   | [18:49:05 INFO]: Server Ping Player Sample Count: 12
+2026-11-12 18:49:05.880 [5764] cli:   | [18:49:05 INFO]: [MoonriseCommon] Paper is using 1 worker threads, 1 I/O threads
+2026-11-12 18:49:05.890 [5764] cli:   | [18:49:05 INFO]: [ca.spottedleaf.moonrise.common.util.FMA] FMA supported: true as determined by performance comparison test
+2026-11-12 18:49:06.071 [5764] cli:   | [18:49:06 INFO]: Default game type: SURVIVAL
+2026-11-12 18:49:06.071 [5764] cli:   | [18:49:06 INFO]: Generating keypair
+2026-11-12 18:49:06.100 [5764] cli:   | [18:49:06 INFO]: Starting Minecraft server on *:25565
+2026-11-12 18:49:06.126 [5764] cli:   | [18:49:06 INFO]: Paper: Using Java compression from Velocity.
+2026-11-12 18:49:06.126 [5764] cli:   | [18:49:06 INFO]: Paper: Using Java cipher from Velocity.
+2026-11-12 18:49:06.173 [5764] cli:   | [18:49:06 INFO]: Preparing level "world"
+2026-11-12 18:49:06.386 [5764] cli:   | [18:49:06 INFO]: Selecting spawn point for level 'minecraft:overworld'...
+2026-11-12 18:49:08.852 [5764] cli:   | [18:49:08 INFO]: Selecting spawn point for level 'minecraft:the_nether'...
+2026-11-12 18:49:09.371 [5764] cli:   | [18:49:09 INFO]: Selecting spawn point for level 'minecraft:the_end'...
+2026-11-12 18:49:09.487 [5764] cli:   | [18:49:09 INFO]: Loading 0 persistent chunks for level 'minecraft:overworld'...
+2026-11-12 18:49:09.492 [5764] cli:   | [18:49:09 INFO]: Preparing spawn area: 100%
+2026-11-12 18:49:09.495 [5764] cli:   | [18:49:09 INFO]: Prepared spawn area in 3108 ms
+2026-11-12 18:49:09.495 [5764] cli:   | [18:49:09 INFO]: Loading 0 persistent chunks for level 'minecraft:the_nether'...
+2026-11-12 18:49:09.495 [5764] cli:   | [18:49:09 INFO]: Preparing spawn area: 100%
+2026-11-12 18:49:09.497 [5764] cli:   | [18:49:09 INFO]: Prepared spawn area in 644 ms
+2026-11-12 18:49:09.497 [5764] cli:   | [18:49:09 INFO]: Loading 0 persistent chunks for level 'minecraft:the_end'...
+2026-11-12 18:49:09.497 [5764] cli:   | [18:49:09 INFO]: Preparing spawn area: 100%
+2026-11-12 18:49:09.499 [5764] cli:   | [18:49:09 INFO]: Prepared spawn area in 130 ms
+2026-11-12 18:49:09.520 [5764] cli:   | [18:49:09 INFO]: Done preparing level "world" (3.326s)
+2026-11-12 18:49:09.585 [5764] cli:   | [18:49:09 INFO]: [spark] Starting background profiler...
+2026-11-12 18:49:09.590 [5764] cli:   | [18:49:09 INFO]: [spark] The async-profiler engine is not supported for your os/arch (windowsserver2025/amd64), so the built-in Java engine will be used instead.
+2026-11-12 18:49:09.610 [5764] cli:   | [18:49:09 INFO]: Starting remote control listener
+2026-11-12 18:49:09.610 [5764] cli:   | [18:49:09 INFO]: Thread RCON Listener started
+2026-11-12 18:49:09.610 [5764] cli:   | [18:49:09 INFO]: RCON running on 0.0.0.0:25575
+2026-11-12 18:49:09.623 [5764] cli:   | [18:49:09 INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:overworld
+2026-11-12 18:49:09.645 [5764] cli:   | [18:49:09 INFO]: Thread RCON Client /127.0.0.1 started
+2026-11-12 18:49:09.696 [5764] cli:   | [18:49:09 INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_nether
+2026-11-12 18:49:09.763 [5764] cli:   | [18:49:09 INFO]: Saving chunks for level 'ServerLevel[world]'/minecraft:the_end
+2026-11-12 18:49:09.805 [5764] cli:   | [18:49:09 INFO]: Running delayed init tasks
+2026-11-12 18:49:09.806 [5764] cli:   * Survival is ready.
+2026-11-12 18:49:09.806 [5764] cli:   | [18:49:09 INFO]: Done (10.622s)! For help, type "help"
+2026-11-12 18:49:10.039 [5764] cli: State: running
+2026-11-12 18:49:10.238 [8820] 12 game templates loaded
+2026-11-12 18:49:10.353 [3428] backup survival: survival-20261112-184910-manual.zip (592 KB)
+2026-11-12 18:49:10.641 [8820] cli: Backed up.
+2026-11-12 18:49:10.663 [3156] 12 game templates loaded
+2026-11-12 18:49:10.999 [7196] 12 game templates loaded
+2026-11-12 18:49:13.262 [4364] ==== Outpost 1.0.2 starting (data: D:\op)
+2026-11-12 18:49:13.267 [4364] 12 game templates loaded
+2026-11-12 18:49:23.104 [4364] Outpost window closed
+2026-11-12 18:49:25.112 [6804] ==== Outpost 1.0.2 starting (data: D:\op)
+2026-11-12 18:49:25.117 [6804] 12 game templates loaded
+2026-11-12 18:49:32.161 [6804] Outpost window closed
+2026-11-12 18:49:34.169 [556] ==== Outpost 1.0.2 starting (data: D:\op)
+2026-11-12 18:49:34.175 [556] 12 game templates loaded
+2026-11-12 18:49:41.210 [556] Outpost window closed
+2026-11-12 18:49:43.230 [5140] ==== Outpost 1.0.2 starting (data: D:\op)
+2026-11-12 18:49:43.235 [5140] 12 game templates loaded
+2026-11-12 18:49:50.278 [5140] Outpost window closed
+2026-11-12 18:49:52.290 [7492] ==== Outpost 1.0.2 starting (data: D:\op)
+2026-11-12 18:49:52.294 [7492] 12 game templates loaded
+2026-11-12 18:49:59.329 [7492] Outpost window closed
+2026-11-12 18:50:01.333 [6752] ==== Outpost 1.0.2 starting (data: D:\op)
+2026-11-12 18:50:01.338 [6752] 12 game templates loaded
+2026-11-12 18:50:08.387 [6752] Outpost window closed
+2026-11-12 18:50:10.401 [4224] ==== Outpost 1.0.2 starting (data: D:\op)
+2026-11-12 18:50:10.406 [4224] 12 game templates loaded
+2026-11-12 18:50:17.454 [4224] Outpost window closed
+2026-11-12 18:50:19.459 [2004] ==== Outpost 1.0.2 starting (data: D:\op)
+2026-11-12 18:50:19.463 [2004] 12 game templates loaded
+2026-11-12 18:50:26.501 [2004] Outpost window closed
+2026-11-12 18:50:28.525 [9796] ==== Outpost 1.0.2 starting (data: D:\op)
+2026-11-12 18:50:28.530 [9796] 12 game templates loaded
+2026-11-12 18:50:35.575 [9796] Outpost window closed
+2026-11-12 18:50:37.582 [8412] ==== Outpost 1.0.2 starting (data: D:\op)
+2026-11-12 18:50:37.587 [8412] 12 game templates loaded
+2026-11-12 18:50:44.627 [8412] Outpost window closed
