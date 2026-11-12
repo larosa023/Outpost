@@ -1,14 +1,8 @@
-## Outpost 1.0.0
+## Outpost 1.0.1
 
-The first release: one-click game servers for Windows.
-
-- **12 games**: Minecraft Java (Vanilla, Paper, Fabric, Forge, NeoForge), Minecraft Bedrock, Valheim, Palworld, Terraria, Satisfactory, Project Zomboid, Enshrouded, ARK: Survival Ascended, Rust, Counter-Strike 2 and 7 Days to Die. SteamCMD and Java are handled for you.
-- **New server wizard**, import an existing server or world, any number of servers per game.
-- **Live console** with colors, command history and autocomplete; players, CPU, RAM and TPS/FPS.
-- **Players**: kick, ban, op, whitelist with buttons; join/leave history.
-- **Mods**: Modrinth (and CurseForge with your key) for Minecraft, with compatibility checks and one-click updates; mod folders for other games; enable/disable without deleting.
-- **Backups** on a schedule and on demand, keep the last N, any folder (an external drive or OneDrive), one-click restore with a safety backup first.
-- **Networking**: UPnP port forwarding, Windows Firewall rules, NAT and reachability checks, router steps when UPnP isn't there, hide-my-IP, optional DuckDNS address.
-- **Runs in the background**: servers keep running when Outpost closes or updates; auto-restart on crash, scheduled restarts, sleep when empty and wake on join.
-- Themes from the suite (Dark, Light, Midnight, Glass and more), accent colors, density, corners, font size; live themes from Hangar.
-- Built-in updater with Stable and Beta channels, verified downloads and automatic rollback.
+- Settings pages are much smoother: text measurements are cached, and slow checks (old versions, Windows colors, Hangar) run every few seconds instead of every frame. Scrolling past switches no longer slows the app down over time.
+- Outpost redraws only when something under the mouse changes.
+- On wide or full-screen windows, Outpost settings, the new server wizard and each server's Settings tab are centered in a readable column.
+- Fixed: the "you're playing a game" notice could appear when Outpost itself filled the screen.
+- Fixed: Paper/Fabric config folders (like bStats or spark) were listed as plugins.
+- The Restore button in the backup card no longer spills out of the card on narrow windows.

@@ -1,5 +1,6 @@
 // Outpost - Direct2D / DirectWrite helpers and the theme
 #include "gfx.h"
+#include <unordered_map>
 #include "util.h"
 #include <dwmapi.h>
 #include <map>
@@ -88,8 +89,20 @@ IDWriteTextFormat* MonoFormat(float size) {
     return f;
 }
 
+// Measuring text means building a DirectWrite layout, which is slow to do hundreds of times a frame:
+// remember the answers (keyed by text, format and width) and start over when the cache gets big.
+static std::unordered_map<std::wstring, float> s_measure;
+static float* Cached(const std::wstring& s, IDWriteTextFormat* f, float width) {
+    if (s_measure.size() > 6000) s_measure.clear();
+    wchar_t k[48];
+    swprintf(k, 48, L"%p|%.1f|", (void*)f, width);
+    return &s_measure.emplace(std::wstring(k) + s, -1.f).first->second;
+}
+
 float MeasureWidth(const std::wstring& s, IDWriteTextFormat* f) {
     if (!f || s.empty()) return 0;
+    float* c = Cached(s, f, -1);
+    if (*c >= 0) return *c;
     IDWriteTextLayout* l = nullptr;
     float w = 0;
     if (SUCCEEDED(dw->CreateTextLayout(s.c_str(), (UINT32)s.size(), f, 10000.f, 1000.f, &l))) {
@@ -97,11 +110,14 @@ float MeasureWidth(const std::wstring& s, IDWriteTextFormat* f) {
         if (SUCCEEDED(l->GetMetrics(&m))) w = m.widthIncludingTrailingWhitespace;
         l->Release();
     }
+    *c = w;
     return w;
 }
 
 float MeasureHeight(const std::wstring& s, IDWriteTextFormat* f, float width) {
     if (!f || s.empty()) return 0;
+    float* c = Cached(s, f, width);
+    if (*c >= 0) return *c;
     IDWriteTextLayout* l = nullptr;
     float h = 0;
     if (SUCCEEDED(dw->CreateTextLayout(s.c_str(), (UINT32)s.size(), f, width, 100000.f, &l))) {
@@ -109,6 +125,7 @@ float MeasureHeight(const std::wstring& s, IDWriteTextFormat* f, float width) {
         if (SUCCEEDED(l->GetMetrics(&m))) h = m.height;
         l->Release();
     }
+    *c = h;
     return h;
 }
 

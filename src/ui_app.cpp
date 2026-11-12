@@ -258,7 +258,8 @@ static void WizSettingRow(const TSetting& st, float x, float& y, float w) {
 }
 
 void DrawWizard(float x0) {
-    float pad = D(40), x = x0 + pad, w = std::min(g_W - x0 - pad * 2, D(900));
+    float pad = D(40), w = std::min(g_W - x0 - pad * 2, D(900));
+    float x = x0 + std::max(pad, (g_W - x0 - w) / 2);
     float y = D(28);
     Text(L"New server", x, y, w, F(24), g_t.text, DWRITE_FONT_WEIGHT_SEMI_BOLD, DWRITE_TEXT_ALIGNMENT_LEADING, D(36));
     float cw = ButtonW(L"Cancel");
@@ -475,7 +476,10 @@ static float ARow(float x, float y, float w, const std::wstring& label, const st
 
 static void ThemeCard(const ThemeDef& d0, const D2D1_RECT_F& r, bool sel) {
     ThemeDef d = d0;
-    if (d.followWindows) d = BuiltinThemes()[SystemUsesLightTheme() ? 1 : 0];
+    static bool light = false;
+    static DWORD lightAt = 0;
+    if (!lightAt || GetTickCount() - lightAt > 5000) { light = SystemUsesLightTheme(); lightAt = GetTickCount(); }
+    if (d.followWindows) d = BuiltinThemes()[light ? 1 : 0];
     Theme th = MakeTheme(d, g_cfg.accent);
     float rad = S(g_t.radius + 2);
     g_c.FillRound(r, rad, Rgb(d.bg));
@@ -490,7 +494,8 @@ static void ThemeCard(const ThemeDef& d0, const D2D1_RECT_F& r, bool sel) {
 static std::wstring Hex(uint32_t c) { wchar_t b[16]; swprintf(b, 16, L"#%06X", c & 0xFFFFFF); return b; }
 
 void DrawAppSettings(float x0) {
-    float pad = D(40), x = x0 + pad, w = std::min(g_W - x0 - pad * 2, D(860));
+    float pad = D(40), w = std::min(g_W - x0 - pad * 2, D(860));
+    float x = x0 + std::max(pad, (g_W - x0 - w) / 2);
     float y0 = D(28);
     Text(L"Outpost settings", x, y0, w, F(24), g_t.text, DWRITE_FONT_WEIGHT_SEMI_BOLD, DWRITE_TEXT_ALIGNMENT_LEADING, D(36));
     float bw = ButtonW(L"Done");
@@ -503,8 +508,13 @@ void DrawAppSettings(float x0) {
 
     // ---- appearance
     title(L"Appearance");
-    std::vector<ThemeDef> all = BuiltinThemes();
-    for (auto& c : g_customThemes) all.push_back(c);
+    static std::vector<ThemeDef> all;
+    static size_t customCount = (size_t)-1;
+    if (customCount != g_customThemes.size() || all.empty()) {
+        all = BuiltinThemes();
+        for (auto& c : g_customThemes) all.push_back(c);
+        customCount = g_customThemes.size();
+    }
     float tw = D(150), th = D(96), gap = D(12);
     int cols = std::max(1, (int)((w + gap) / (tw + gap)));
     for (size_t i = 0; i < all.size(); ++i) {
@@ -535,7 +545,10 @@ void DrawAppSettings(float x0) {
         };
         ThemeDef cur = FindTheme(g_cfg.theme, g_customThemes);
         sw(ResolveAccent(cur, L"theme"), L"theme", L"Theme");
-        sw(SystemAccent(), L"windows", L"Windows");
+        static uint32_t sysAccent = 0;
+        static DWORD sysAt = 0;
+        if (!sysAt || GetTickCount() - sysAt > 5000) { sysAccent = SystemAccent(); sysAt = GetTickCount(); }
+        sw(sysAccent, L"windows", L"Windows");
         for (int i = 0; i < kAccentSwatchCount && i < 8; ++i) sw(kAccentSwatches[i], Hex(kAccentSwatches[i]), L"");
         D2D1_RECT_F cr = RW(sx, ay - D(2), D(28), D(28));
         g_c.StrokeRound(cr, D(14), g_t.subtext, S(1.5f));
@@ -616,7 +629,9 @@ void DrawAppSettings(float x0) {
     int hsel = 1;
     for (int i = 0; i < 5; ++i) if (hrs[i] == g_cfg.checkHours) hsel = i;
     Dropdown(RW(cx, ry - D(2), D(200), D(36)), {L"hour", L"3 hours", L"6 hours", L"12 hours", L"day"}, hsel, [](int i) { g_cfg.checkHours = hrs[i]; ConfigSave(); });
-    auto prevs = selfupdate::PreviousVersions();
+    static std::vector<selfupdate::Previous> prevs;
+    static DWORD prevsAt = 0;
+    if (!prevsAt || GetTickCount() - prevsAt > 5000) { prevs = selfupdate::PreviousVersions(); prevsAt = GetTickCount(); }
     for (auto& p : prevs) {
         ry = y;
         y = ARow(x, y, w, L"Go back to " + p.version, L"If something broke after an update.", &cx, D(160));
@@ -679,7 +694,12 @@ void DrawAppSettings(float x0) {
     link(L"Reload templates", icon::Refresh, [] { templates::Load(); templates::FetchRemote(g_hwnd); Toast(std::to_wstring(templates::All().size()) + L" game templates."); });
     link(L"GitHub", icon::Globe, [] { OpenUrl(L"https://github.com/larosa023/Outpost"); });
     y += D(48);
-    bool hangar = WaitNamedPipeW((L"\\\\.\\pipe\\larosa023.hangar." + pipe::SessionSuffix()).c_str(), 0) || GetLastError() == ERROR_SEM_TIMEOUT;
+    static bool hangar = false;
+    static DWORD hangarAt = 0;
+    if (!hangarAt || GetTickCount() - hangarAt > 5000) {
+        hangar = WaitNamedPipeW((L"\\\\.\\pipe\\larosa023.hangar." + pipe::SessionSuffix()).c_str(), 0) || GetLastError() == ERROR_SEM_TIMEOUT;
+        hangarAt = GetTickCount();
+    }
     Para(std::wstring(L"Outpost " OUTPOST_VERSION) + (IsPortable() ? L" (portable)" : L"") + L" \x00B7 " + std::to_wstring(templates::All().size()) + L" games \x00B7 " +
          (hangar ? L"connected to Hangar" : L"Hangar isn't running (Outpost updates itself)") + L"\nData: " + DataDir(), x, y, w, F(12), g_t.faint);
     y += D(50);

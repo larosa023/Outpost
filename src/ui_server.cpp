@@ -1376,6 +1376,9 @@ static void DrawSettings(ServerView& v, float x, float y0, float w, float bottom
     if (RawEditorOpen() && g_rawServer == v.def.id) { DrawRawEditor(x, y0, w, bottom); return; }
     ScrollArea& sa = PageScroll();
     float y = BeginScroll(sa, R(x - D(4), y0, x + w + D(12), bottom)) + D(18);
+    float full = w;
+    w = std::min(w, D(900));
+    x += (full - w) / 2;
     std::wstring id = v.def.id;
     float cx;
     if (v.needsRestart && v.state == L"running") y = Banner(x, y, w, g_t.warn, icon::Refresh, L"Restart the server to use your new settings.", L"Restart", [id] { if (ServerView* s = FindServer(id)) RestartServer(*s); });
@@ -1416,8 +1419,7 @@ static void DrawSettings(ServerView& v, float x, float y0, float w, float bottom
     for (auto& g : groups) {
         y += D(10);
         y = SectionTitle(g == L"General" ? L"Game" : g, x, y, w);
-        for (auto& st : v.tmpl.settings) if (!st.hidden && st.group == g && Visible(y - D(100), y + D(100))) y = SettingControl(v, st, x, y, w);
-            else if (!st.hidden && st.group == g) y += D(64);
+        for (auto& st : v.tmpl.settings) if (!st.hidden && st.group == g) y = SettingControl(v, st, x, y, w);
     }
     // ---- automation
     y += D(10);
@@ -1517,7 +1519,15 @@ static void DrawSettings(ServerView& v, float x, float y0, float w, float bottom
     Text(L"Template: " + v.tmpl.name + L" v" + std::to_wstring(v.tmpl.version) + L" (" + (v.tmpl.origin.empty() ? L"saved with this server" : v.tmpl.origin) + L")", x, y, w, F(12), g_t.faint);
     y += D(30);
     // ---- config files
-    auto files = EditableConfigFiles(v.def, v.tmpl);
+    static std::map<std::wstring, std::pair<DWORD, std::vector<std::pair<std::wstring, bool>>>> fileCache;
+    auto& fc = fileCache[v.def.id];
+    if (!fc.first || GetTickCount() - fc.first > 3000) {
+        fc.second.clear();
+        for (auto& f : EditableConfigFiles(v.def, v.tmpl)) fc.second.push_back({f, FileExists(f)});
+        fc.first = GetTickCount();
+    }
+    std::vector<std::wstring> files;
+    for (auto& f : fc.second) files.push_back(f.first);
     if (!files.empty()) {
         y += D(6);
         y = SectionTitle(L"Config files", x, y, w);
@@ -1526,7 +1536,8 @@ static void DrawSettings(ServerView& v, float x, float y0, float w, float bottom
         for (auto& f : files) {
             D2D1_RECT_F row = RW(x, y, w, D(44));
             Card(row, Hover(row));
-            bool exists = FileExists(f);
+            bool exists = false;
+            for (auto& e : fc.second) if (e.first == f) exists = e.second;
             Glyph(icon::Edit, x + D(22), y + D(22), F(13), g_t.subtext);
             std::wstring rel = PathStartsWith(f, v.def.FilesDir()) ? f.substr(v.def.FilesDir().size() + 1) : f;
             Text(rel, x + D(44), y, w - D(180), F(13), exists ? g_t.text : g_t.faint, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_TEXT_ALIGNMENT_LEADING, D(44));

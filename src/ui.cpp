@@ -312,6 +312,7 @@ void IconButton(const D2D1_RECT_F& r, wchar_t glyph, std::function<void()> click
 static std::map<std::wstring, float> g_knob;   // animated toggle positions, keyed by place
 void Toggle(float x, float y, bool on, std::function<void(bool)> changed, bool enabled) {
     D2D1_RECT_F r = RW(x, y, S(40), S(22));
+    if (g_knob.size() > 300) g_knob.clear();
     wchar_t key[64]; swprintf(key, 64, L"%d:%d", (int)x, (int)y);
     float& k = g_knob.emplace(key, on ? 1.f : 0.f).first->second;
     float target = on ? 1.f : 0.f;
@@ -977,7 +978,14 @@ static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
         if (!g_dragKey.empty()) { g_dragValue = SliderValueAt(g_mx); if (g_dragLive) g_dragLive(g_dragValue); }
         TRACKMOUSEEVENT t{sizeof(t), TME_LEAVE, hwnd, 0};
         TrackMouseEvent(&t);
-        Invalidate();
+        {
+            // repaint only when the thing under the mouse changed (or something is being dragged)
+            static const void* lastHot = nullptr;
+            const HotRect* h = HitAt(g_mx, g_my);
+            bool menuHover = g_menu.open && In(g_menu.box, g_mx, g_my);
+            if (h != lastHot || !g_dragKey.empty() || g_mdown || menuHover || g_mx < S(264)) Invalidate();
+            lastHot = h;
+        }
         return 0;
     }
     case WM_MOUSELEAVE: g_mx = g_my = -1; Invalidate(); return 0;
