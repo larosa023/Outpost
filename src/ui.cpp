@@ -497,7 +497,7 @@ void Slider(const D2D1_RECT_F& r, const std::wstring& key, double value, double 
     bool hov = Hover(r) || dragging;
     g_c.Circle(x, cy, S(hov ? 9.f : 8.f), g_t.accent);
     g_c.Circle(x, cy, S(3.5f), g_t.onAccent);
-    Hot(r, [key, r, lo, hi, step, live, commit, value] {}, true);
+    Hot(r, [] {}, true);
     // drag starts on mouse down (see WM_LBUTTONDOWN): remember what this slider is
     if (g_mdown && g_dragKey.empty() && In(r, g_downX, g_downY)) {
         g_dragKey = key; g_dragRect = r; g_dragLo = lo; g_dragHi = hi; g_dragStep = step; g_dragLive = live; g_dragCommit = commit;

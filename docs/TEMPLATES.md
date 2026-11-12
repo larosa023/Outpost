@@ -69,7 +69,7 @@ Each server keeps its own copy (`template.json` in its folder), so a template ch
 | `saves` | What a backup contains: paths relative to `files`, or absolute (`%LOCALAPPDATA%\…`) |
 | `stop` | Graceful shutdown, tried in this order: `command` (typed into the console), `rcon: [...]`, `telnet: [...]`, `api: "shutdown"` (Palworld's REST API), then `ctrlC`. After `timeout` seconds it's closed |
 | `commands` | Player actions: `say`, `kick`, `ban`, `unban`, `op`, `deop`, `whitelistAdd`, `whitelistRemove`, `save`. Use `{player}` and `{text}`. `via`: `rcon` or `telnet` (default: the console). `api:announce` style names call Palworld's REST API |
-| `console` | `input` (does the console take commands), `via`, `note`, `autocomplete: [...]` |
+| `console` | `input` (does the console take commands), `via`, `note`, `autocomplete: [...]`, `pty: true` for servers that only read a real console (Terraria): Outpost then runs them in a Windows pseudo-console |
 | `query` | How Outpost reads players and performance while it runs: `type` is `rcon`, `telnet`, `palworld` or `stdin`; `port`, `password`, `list` (the command), `listPattern`, `listMulti`, `listNextLine`, `perf: [{ "cmd", "pattern", "kind": "tps|mspt|fps" }]`, `ready` (the server is ready once this answers) |
 | `log` | Regular expressions on console lines: `ready`, `join` and `leave` (group 1 = player), `joinId`/`leaveId` (for games that log IDs on leave), `chat`, `warn`, `error`. Start a pattern with `(?i)` to ignore case |
 | `logFile` | For servers that write their log to a file instead of the console (ARK, Satisfactory, 7 Days to Die) |

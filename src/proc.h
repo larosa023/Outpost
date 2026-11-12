@@ -15,9 +15,12 @@ int RunCapture(const std::wstring& exe, const std::wstring& args, const std::wst
 // ends when Outpost's host ends, and can be measured as a whole.
 struct Child {
     HANDLE process = nullptr, job = nullptr, in = nullptr, out = nullptr;
+    void* pty = nullptr;                            // pseudo-console (for games that only read a real console)
     DWORD pid = 0;
     bool Start(const std::wstring& exe, const std::wstring& args, const std::wstring& cwd,
-               const std::vector<std::pair<std::wstring, std::wstring>>& env, uint64_t memoryLimit, std::wstring* error);
+               const std::vector<std::pair<std::wstring, std::wstring>>& env, uint64_t memoryLimit, std::wstring* error,
+               bool usePty = false);
+    void ClosePty();                                // after the game exits, so the output pipe ends
     bool Write(const std::string& line);            // sends line + "\r\n" to stdin
     bool Running() const;
     DWORD ExitCode() const;

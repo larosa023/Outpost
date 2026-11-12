@@ -700,7 +700,8 @@ bool Host::StartServer() {
     uint64_t limit = (t_.hasRam && !t_.ramJava && s_.ram > 0) ? (uint64_t)s_.ram * 1024 * 1024 : 0;
     Say(L"Starting " + s_.name + L" (" + t_.name + (s_.installedVersion.empty() ? L"" : L" " + s_.installedVersion) + L")…");
     Log(L"host %ls: %ls %ls", s_.id.c_str(), exe.c_str(), args.c_str());
-    if (!child_.Start(exe, args, s_.FilesDir(), env, limit, &err)) { SetState(St::Error, err); return false; }
+    bool pty = t_.Obj(L"console") && t_.Obj(L"console")->GetBool(L"pty", false);
+    if (!child_.Start(exe, args, s_.FilesDir(), env, limit, &err, pty)) { SetState(St::Error, err); return false; }
     if (reader_.joinable()) reader_.join();
     readerDone_ = false;
     HANDLE out = child_.out;
@@ -764,6 +765,7 @@ void Host::BeginStop(bool forSleep, bool forRestart) {
 }
 
 void Host::FinishStopped() {
+    child_.ClosePty();   // a pseudo-console keeps its output open until it's closed
     // a helper the game started may still hold its console open: give the reader a moment, then end the whole job
     for (int i = 0; i < 30 && !readerDone_; ++i) Sleep(100);
     if (!readerDone_) { Log(L"host %ls: closing leftover processes", s_.id.c_str()); child_.Kill(); }

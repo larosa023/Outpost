@@ -4,7 +4,7 @@
   "name": "Terraria",
   "short": "TR",
   "color": "#4C9A3B",
-  "version": 2,
+  "version": 3,
   "description": "Dig, fight, explore, build.",
   "source": {
     "type": "terraria"
@@ -146,6 +146,7 @@
   ],
   "stop": {
     "command": "exit",
+    "ctrlC": true,
     "timeout": 60
   },
   "commands": {
@@ -172,7 +173,8 @@
       "motd",
       "password",
       "exit"
-    ]
+    ],
+    "pty": true
   },
   "query": {
     "type": "stdin",

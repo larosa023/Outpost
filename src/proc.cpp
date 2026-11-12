@@ -88,8 +88,69 @@ int RunCapture(const std::wstring& exe, const std::wstring& args, const std::wst
     return (int)code;
 }
 
+// ConPTY (Windows 10 1809+), loaded at run time
+typedef HRESULT(WINAPI* CreatePCFn)(COORD, HANDLE, HANDLE, DWORD, void**);
+typedef void(WINAPI* ClosePCFn)(void*);
+
+static bool StartPty(Child& c, const std::wstring& exe, const std::wstring& args, const std::wstring& cwd,
+                     const std::vector<wchar_t>& envBlock, std::wstring* error) {
+    HMODULE k = GetModuleHandleW(L"kernel32.dll");
+    auto create = (CreatePCFn)GetProcAddress(k, "CreatePseudoConsole");
+    if (!create) { *error = L"This game needs Windows 10 (1809) or newer."; return false; }
+    HANDLE inR, inW, outR, outW;
+    if (!CreatePipe(&inR, &inW, nullptr, 0) || !CreatePipe(&outR, &outW, nullptr, 1 << 16)) { *error = L"Couldn't create pipes."; return false; }
+    void* hpc = nullptr;
+    COORD size{1000, 60};   // wide, so long lines aren't wrapped
+    if (FAILED(create(size, inR, outW, 0, &hpc))) { *error = L"Couldn't create a console for the server."; CloseHandle(inR); CloseHandle(inW); CloseHandle(outR); CloseHandle(outW); return false; }
+    CloseHandle(inR); CloseHandle(outW);
+    SIZE_T attrSize = 0;
+    InitializeProcThreadAttributeList(nullptr, 1, 0, &attrSize);
+    std::vector<uint8_t> attrBuf(attrSize);
+    auto* attrs = (LPPROC_THREAD_ATTRIBUTE_LIST)attrBuf.data();
+    InitializeProcThreadAttributeList(attrs, 1, 0, &attrSize);
+    UpdateProcThreadAttribute(attrs, 0, 0x00020016 /*PROC_THREAD_ATTRIBUTE_PSEUDOCONSOLE*/, hpc, sizeof(hpc), nullptr, nullptr);
+    STARTUPINFOEXW si{};
+    si.StartupInfo.cb = sizeof(si);
+    si.lpAttributeList = attrs;
+    PROCESS_INFORMATION pi{};
+    std::wstring cmd = Quote(exe) + L" " + args;
+    std::vector<wchar_t> buf(cmd.begin(), cmd.end()); buf.push_back(0);
+    BOOL ok = CreateProcessW(exe.c_str(), buf.data(), nullptr, nullptr, FALSE, EXTENDED_STARTUPINFO_PRESENT | CREATE_UNICODE_ENVIRONMENT | CREATE_SUSPENDED,
+                             (LPVOID)envBlock.data(), cwd.c_str(), &si.StartupInfo, &pi);
+    DeleteProcThreadAttributeList(attrs);
+    if (!ok) {
+        *error = L"Couldn't start " + PathName(exe) + L" (error " + std::to_wstring(GetLastError()) + L").";
+        ((ClosePCFn)GetProcAddress(k, "ClosePseudoConsole"))(hpc);
+        CloseHandle(inW); CloseHandle(outR);
+        return false;
+    }
+    AssignProcessToJobObject(c.job, pi.hProcess);
+    ResumeThread(pi.hThread);
+    CloseHandle(pi.hThread);
+    c.process = pi.hProcess; c.pid = pi.dwProcessId; c.in = inW; c.out = outR; c.pty = hpc;
+    return true;
+}
+
+void Child::ClosePty() {
+    if (!pty) return;
+    auto close = (ClosePCFn)GetProcAddress(GetModuleHandleW(L"kernel32.dll"), "ClosePseudoConsole");
+    if (close) close(pty);
+    pty = nullptr;
+}
+
 bool Child::Start(const std::wstring& exe, const std::wstring& args, const std::wstring& cwd,
-                  const std::vector<std::pair<std::wstring, std::wstring>>& env, uint64_t memoryLimit, std::wstring* error) {
+                  const std::vector<std::pair<std::wstring, std::wstring>>& env, uint64_t memoryLimit, std::wstring* error, bool usePty) {
+    if (usePty) {
+        job = CreateJobObjectW(nullptr, nullptr);
+        JOBOBJECT_EXTENDED_LIMIT_INFORMATION li{};
+        li.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+        if (memoryLimit) { li.BasicLimitInformation.LimitFlags |= JOB_OBJECT_LIMIT_JOB_MEMORY; li.JobMemoryLimit = (SIZE_T)memoryLimit; }
+        SetInformationJobObject(job, JobObjectExtendedLimitInformation, &li, sizeof(li));
+        auto envBlock = BuildEnv(env);
+        if (StartPty(*this, exe, args, cwd, envBlock, error)) return true;
+        CloseHandle(job); job = nullptr;
+        return false;
+    }
     SECURITY_ATTRIBUTES sa{sizeof(sa), nullptr, TRUE};
     HANDLE inR = nullptr, inW = nullptr, outR = nullptr, outW = nullptr;
     if (!CreatePipe(&inR, &inW, &sa, 0) || !CreatePipe(&outR, &outW, &sa, 1 << 16)) { *error = L"Couldn't create pipes."; return false; }
@@ -135,7 +196,7 @@ bool Child::Start(const std::wstring& exe, const std::wstring& args, const std::
 
 bool Child::Write(const std::string& line) {
     if (!in) return false;
-    std::string l = line + "\r\n";
+    std::string l = line + (pty ? "\r" : "\r\n");   // a console gets Enter as \r
     DWORD w = 0;
     return WriteFile(in, l.data(), (DWORD)l.size(), &w, nullptr) && w == l.size();
 }
@@ -145,6 +206,7 @@ DWORD Child::ExitCode() const { DWORD c = 0; if (process) GetExitCodeProcess(pro
 
 void Child::SendCtrlC() {
     if (!Running()) return;
+    if (pty) { DWORD w; WriteFile(in, "\x03", 1, &w, nullptr); return; }
     // Join the server's hidden console for a moment and raise Ctrl+C there. We ignore it ourselves.
     FreeConsole();
     if (AttachConsole(pid)) {
@@ -180,6 +242,7 @@ void Child::SetLowPriority(bool low) {
 }
 
 void Child::Close() {
+    ClosePty();
     if (in) { CloseHandle(in); in = nullptr; }
     if (out) { CloseHandle(out); out = nullptr; }
     if (process) { CloseHandle(process); process = nullptr; }
