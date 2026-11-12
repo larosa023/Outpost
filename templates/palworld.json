@@ -1,0 +1,276 @@
+{
+  "schema": 1,
+  "id": "palworld",
+  "name": "Palworld",
+  "short": "PW",
+  "color": "#2E9BD6",
+  "version": 1,
+  "description": "Catch Pals and build with up to 32 friends.",
+  "source": {
+    "type": "steamcmd",
+    "appId": 2394010
+  },
+  "launch": {
+    "exe": "Pal\\Binaries\\Win64\\PalServer-Win64-Shipping-Cmd.exe",
+    "args": "Pal -port={port} -players={maxPlayers} -useperfthreads -NoAsyncLoadingThread -UseMultithreadForDS {community}"
+  },
+  "ports": [
+    {
+      "id": "port",
+      "name": "Game",
+      "default": 8211,
+      "protocol": "udp"
+    },
+    {
+      "id": "restPort",
+      "name": "Admin API (this PC only)",
+      "default": 8212,
+      "protocol": "tcp",
+      "local": true
+    }
+  ],
+  "settings": [
+    {
+      "id": "serverName",
+      "label": "Server name",
+      "type": "text",
+      "default": "Outpost Palworld",
+      "help": "",
+      "group": "General",
+      "wizard": true
+    },
+    {
+      "id": "serverDescription",
+      "label": "Description",
+      "type": "text",
+      "default": "",
+      "help": "",
+      "group": "General"
+    },
+    {
+      "id": "serverPassword",
+      "label": "Password",
+      "type": "password",
+      "default": "",
+      "help": "Leave empty for no password.",
+      "group": "Players",
+      "wizard": true
+    },
+    {
+      "id": "maxPlayers",
+      "label": "Max players",
+      "type": "number",
+      "default": "16",
+      "help": "",
+      "group": "Players",
+      "wizard": true,
+      "min": 1,
+      "max": 32
+    },
+    {
+      "id": "community",
+      "label": "List in community servers",
+      "type": "bool",
+      "default": "",
+      "help": "",
+      "group": "Players",
+      "values": [
+        "",
+        "-publiclobby"
+      ]
+    },
+    {
+      "id": "pvp",
+      "label": "Player vs player",
+      "type": "bool",
+      "default": "False",
+      "help": "",
+      "group": "Players",
+      "values": [
+        "False",
+        "True"
+      ]
+    },
+    {
+      "id": "expRate",
+      "label": "XP rate",
+      "type": "number",
+      "default": "1.0",
+      "help": "",
+      "group": "World",
+      "wizard": true,
+      "step": 0.1,
+      "min": 0.1,
+      "max": 20
+    },
+    {
+      "id": "captureRate",
+      "label": "Capture rate",
+      "type": "number",
+      "default": "1.0",
+      "help": "",
+      "group": "World",
+      "step": 0.1,
+      "min": 0.5,
+      "max": 2
+    },
+    {
+      "id": "spawnRate",
+      "label": "Pal spawn rate",
+      "type": "number",
+      "default": "1.0",
+      "help": "",
+      "group": "World",
+      "step": 0.1,
+      "min": 0.5,
+      "max": 3
+    },
+    {
+      "id": "deathPenalty",
+      "label": "On death, drop",
+      "type": "choice",
+      "default": "All",
+      "help": "",
+      "group": "World",
+      "wizard": true,
+      "options": [
+        {
+          "value": "None",
+          "label": "Nothing"
+        },
+        {
+          "value": "Item",
+          "label": "Items only"
+        },
+        {
+          "value": "ItemAndEquipment",
+          "label": "Items and equipment"
+        },
+        {
+          "value": "All",
+          "label": "Everything, including Pals"
+        }
+      ]
+    },
+    {
+      "id": "raids",
+      "label": "Raids",
+      "type": "bool",
+      "default": "True",
+      "help": "",
+      "group": "World",
+      "values": [
+        "False",
+        "True"
+      ]
+    },
+    {
+      "id": "dayRate",
+      "label": "Day speed",
+      "type": "number",
+      "default": "1.0",
+      "help": "",
+      "group": "World",
+      "step": 0.1,
+      "min": 0.1,
+      "max": 5
+    },
+    {
+      "id": "nightRate",
+      "label": "Night speed",
+      "type": "number",
+      "default": "1.0",
+      "help": "",
+      "group": "World",
+      "step": 0.1,
+      "min": 0.1,
+      "max": 5
+    },
+    {
+      "id": "adminPassword",
+      "label": "Admin password",
+      "type": "password",
+      "default": "{random}",
+      "help": "Type /AdminPassword in game to become admin. Outpost also uses it for the admin API.",
+      "group": "Advanced"
+    }
+  ],
+  "configFiles": [
+    {
+      "path": "Pal\\Saved\\Config\\WindowsServer\\PalWorldSettings.ini",
+      "format": "ue-options",
+      "section": "/Script/Pal.PalGameWorldSettings",
+      "key": "OptionSettings",
+      "copyFrom": "DefaultPalWorldSettings.ini",
+      "values": {
+        "ServerName": "\"{serverName}\"",
+        "ServerDescription": "\"{serverDescription}\"",
+        "AdminPassword": "\"{adminPassword}\"",
+        "ServerPassword": "\"{serverPassword}\"",
+        "ServerPlayerMaxNum": "{maxPlayers}",
+        "PublicPort": "{port}",
+        "RESTAPIEnabled": "True",
+        "RESTAPIPort": "{restPort}",
+        "bIsPvP": "{pvp}",
+        "ExpRate": "{expRate}",
+        "PalCaptureRate": "{captureRate}",
+        "PalSpawnNumRate": "{spawnRate}",
+        "DeathPenalty": "{deathPenalty}",
+        "bEnableInvaderEnemy": "{raids}",
+        "DayTimeSpeedRate": "{dayRate}",
+        "NightTimeSpeedRate": "{nightRate}"
+      }
+    }
+  ],
+  "saves": [
+    "Pal\\Saved\\SaveGames",
+    "Pal\\Saved\\Config\\WindowsServer\\PalWorldSettings.ini"
+  ],
+  "stop": {
+    "api": "shutdown",
+    "ctrlC": true,
+    "timeout": 90
+  },
+  "commands": {
+    "say": "api:announce",
+    "kick": "api:kick",
+    "ban": "api:ban",
+    "unban": "api:unban",
+    "save": "api:save"
+  },
+  "console": {
+    "input": false,
+    "note": "Palworld doesn't take console commands. Use the Players tab, or type a message to announce it."
+  },
+  "query": {
+    "type": "palworld",
+    "port": "{restPort}",
+    "password": "{adminPassword}",
+    "ready": true
+  },
+  "log": {
+    "ready": "Running Palworld dedicated server on",
+    "join": "\\] (.+?) joined the server",
+    "leave": "\\] (.+?) left the server",
+    "error": "(?i)\\berror\\b",
+    "warn": "(?i)\\bwarning\\b"
+  },
+  "backup": {
+    "before": [
+      "api:save"
+    ],
+    "timeout": 60
+  },
+  "mods": {
+    "type": "folder",
+    "folder": "Pal\\Content\\Paks\\~mods",
+    "label": "Pak mods"
+  },
+  "sleep": {
+    "wake": "udp"
+  },
+  "performance": {
+    "label": "Server FPS",
+    "max": 60
+  }
+}

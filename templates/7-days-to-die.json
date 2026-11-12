@@ -1,0 +1,232 @@
+{
+  "schema": 1,
+  "id": "7-days-to-die",
+  "name": "7 Days to Die",
+  "short": "7D",
+  "color": "#8C2F1E",
+  "version": 1,
+  "description": "Survive the horde every seventh night.",
+  "source": {
+    "type": "steamcmd",
+    "appId": 294420
+  },
+  "launch": {
+    "exe": "7DaysToDieServer.exe",
+    "args": "-quit -batchmode -nographics -configfile=serverconfig.xml -dedicated -logfile \"{dir}\\output_log.txt\""
+  },
+  "logFile": "output_log.txt",
+  "ports": [
+    {
+      "id": "port",
+      "name": "Game",
+      "default": 26900,
+      "protocol": "both",
+      "count": 3
+    },
+    {
+      "id": "telnetPort",
+      "name": "Admin console (this PC only)",
+      "default": 8081,
+      "protocol": "tcp",
+      "local": true
+    }
+  ],
+  "settings": [
+    {
+      "id": "serverName",
+      "label": "Server name",
+      "type": "text",
+      "default": "Outpost 7DTD",
+      "help": "",
+      "group": "General",
+      "wizard": true
+    },
+    {
+      "id": "password",
+      "label": "Password",
+      "type": "password",
+      "default": "",
+      "help": "",
+      "group": "Players",
+      "wizard": true
+    },
+    {
+      "id": "maxPlayers",
+      "label": "Max players",
+      "type": "number",
+      "default": "8",
+      "help": "",
+      "group": "Players",
+      "wizard": true,
+      "min": 1,
+      "max": 64
+    },
+    {
+      "id": "world",
+      "label": "World",
+      "type": "choice",
+      "default": "Navezgane",
+      "help": "",
+      "group": "World",
+      "wizard": true,
+      "options": [
+        {
+          "value": "Navezgane",
+          "label": "Navezgane"
+        },
+        {
+          "value": "RWG",
+          "label": "Random generated"
+        }
+      ]
+    },
+    {
+      "id": "seed",
+      "label": "Random world seed",
+      "type": "seed",
+      "default": "outpost",
+      "help": "Used when World is Random generated.",
+      "group": "World",
+      "wizard": true
+    },
+    {
+      "id": "gameName",
+      "label": "Save name",
+      "type": "text",
+      "default": "Outpost",
+      "help": "",
+      "group": "World"
+    },
+    {
+      "id": "difficulty",
+      "label": "Difficulty",
+      "type": "choice",
+      "default": "1",
+      "help": "",
+      "group": "World",
+      "wizard": true,
+      "options": [
+        {
+          "value": "0",
+          "label": "Scavenger"
+        },
+        {
+          "value": "1",
+          "label": "Adventurer"
+        },
+        {
+          "value": "2",
+          "label": "Nomad"
+        },
+        {
+          "value": "3",
+          "label": "Warrior"
+        },
+        {
+          "value": "4",
+          "label": "Survivalist"
+        },
+        {
+          "value": "5",
+          "label": "Insane"
+        }
+      ]
+    },
+    {
+      "id": "telnetPassword",
+      "label": "Admin console password",
+      "type": "password",
+      "default": "{random}",
+      "help": "",
+      "group": "Advanced",
+      "hidden": true
+    }
+  ],
+  "configFiles": [
+    {
+      "path": "serverconfig.xml",
+      "format": "xml-properties",
+      "values": {
+        "ServerName": "{serverName}",
+        "ServerPassword": "{password}",
+        "ServerPort": "{port}",
+        "ServerMaxPlayerCount": "{maxPlayers}",
+        "GameWorld": "{world}",
+        "WorldGenSeed": "{seed}",
+        "GameName": "{gameName}",
+        "GameDifficulty": "{difficulty}",
+        "TelnetEnabled": "true",
+        "TelnetPort": "{telnetPort}",
+        "TelnetPassword": "{telnetPassword}",
+        "UserDataFolder": "{dir}\\UserData"
+      }
+    }
+  ],
+  "saves": [
+    "UserData\\Saves",
+    "serverconfig.xml"
+  ],
+  "stop": {
+    "telnet": [
+      "saveworld",
+      "shutdown"
+    ],
+    "ctrlC": true,
+    "timeout": 120
+  },
+  "commands": {
+    "say": "say \"{text}\"",
+    "kick": "kick \"{player}\"",
+    "ban": "ban add \"{player}\" 10 years",
+    "unban": "ban remove \"{player}\"",
+    "op": "admin add \"{player}\" 0",
+    "deop": "admin remove \"{player}\"",
+    "save": "saveworld",
+    "via": "telnet"
+  },
+  "console": {
+    "input": true,
+    "via": "telnet",
+    "autocomplete": [
+      "help",
+      "lp",
+      "say ",
+      "kick ",
+      "ban add ",
+      "saveworld",
+      "settime ",
+      "spawnairdrop",
+      "shutdown"
+    ]
+  },
+  "query": {
+    "type": "telnet",
+    "port": "{telnetPort}",
+    "password": "{telnetPassword}",
+    "list": "lp",
+    "listPattern": "id=\\d+, (.+?), pos=",
+    "listMulti": true,
+    "ready": true
+  },
+  "log": {
+    "ready": "GameServer.LogOn successful|StartGame done",
+    "join": "PlayerSpawnedInWorld.*PlayerName='(.+?)'",
+    "leave": "Player disconnected: .*PlayerName='(.+?)'",
+    "error": " ERR ",
+    "warn": " WRN "
+  },
+  "backup": {
+    "before": [
+      "saveworld"
+    ],
+    "timeout": 120
+  },
+  "mods": {
+    "type": "folder",
+    "folder": "Mods",
+    "label": "Mods"
+  },
+  "sleep": {
+    "wake": "tcp"
+  }
+}

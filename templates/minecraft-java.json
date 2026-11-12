@@ -1,0 +1,488 @@
+{
+  "schema": 1,
+  "id": "minecraft-java",
+  "name": "Minecraft: Java Edition",
+  "short": "MC",
+  "color": "#5B8C32",
+  "version": 1,
+  "description": "Vanilla, Paper, Fabric, Forge or NeoForge.",
+  "source": {
+    "type": "minecraft"
+  },
+  "variants": [
+    {
+      "id": "vanilla",
+      "name": "Vanilla",
+      "description": "The official server from Mojang"
+    },
+    {
+      "id": "paper",
+      "name": "Paper",
+      "description": "Fast, with plugin support"
+    },
+    {
+      "id": "fabric",
+      "name": "Fabric",
+      "description": "Lightweight mod loader"
+    },
+    {
+      "id": "forge",
+      "name": "Forge",
+      "description": "The classic mod loader"
+    },
+    {
+      "id": "neoforge",
+      "name": "NeoForge",
+      "description": "Modern Forge fork"
+    }
+  ],
+  "launch": {
+    "exe": "{java}",
+    "args": "-Xms{ramMin}M -Xmx{ram}M {launchArgs} nogui"
+  },
+  "ram": {
+    "default": 4096,
+    "min": 1024,
+    "java": true
+  },
+  "ports": [
+    {
+      "id": "port",
+      "name": "Game",
+      "default": 25565,
+      "protocol": "tcp"
+    },
+    {
+      "id": "rconPort",
+      "name": "Remote console (this PC only)",
+      "default": 25575,
+      "protocol": "tcp",
+      "local": true
+    }
+  ],
+  "settings": [
+    {
+      "id": "eula",
+      "label": "I accept the Minecraft EULA",
+      "type": "bool",
+      "default": "false",
+      "help": "Required by Mojang: aka.ms/MinecraftEULA",
+      "group": "General",
+      "wizard": true,
+      "required": "true"
+    },
+    {
+      "id": "motd",
+      "label": "Message of the day",
+      "type": "text",
+      "default": "An Outpost server",
+      "help": "Shown under the server name in the multiplayer list.",
+      "group": "General"
+    },
+    {
+      "id": "gamemode",
+      "label": "Game mode",
+      "type": "choice",
+      "default": "survival",
+      "help": "",
+      "group": "World",
+      "wizard": true,
+      "options": [
+        {
+          "value": "survival",
+          "label": "Survival"
+        },
+        {
+          "value": "creative",
+          "label": "Creative"
+        },
+        {
+          "value": "adventure",
+          "label": "Adventure"
+        },
+        {
+          "value": "spectator",
+          "label": "Spectator"
+        }
+      ]
+    },
+    {
+      "id": "difficulty",
+      "label": "Difficulty",
+      "type": "choice",
+      "default": "normal",
+      "help": "",
+      "group": "World",
+      "wizard": true,
+      "options": [
+        {
+          "value": "peaceful",
+          "label": "Peaceful"
+        },
+        {
+          "value": "easy",
+          "label": "Easy"
+        },
+        {
+          "value": "normal",
+          "label": "Normal"
+        },
+        {
+          "value": "hard",
+          "label": "Hard"
+        }
+      ]
+    },
+    {
+      "id": "hardcore",
+      "label": "Hardcore",
+      "type": "bool",
+      "default": "false",
+      "help": "One life. Dying bans you from the world.",
+      "group": "World",
+      "values": [
+        "false",
+        "true"
+      ]
+    },
+    {
+      "id": "maxPlayers",
+      "label": "Max players",
+      "type": "number",
+      "default": "20",
+      "help": "",
+      "group": "Players",
+      "wizard": true,
+      "min": 1,
+      "max": 500
+    },
+    {
+      "id": "levelName",
+      "label": "World folder",
+      "type": "text",
+      "default": "world",
+      "help": "Folder the world is saved in.",
+      "group": "World"
+    },
+    {
+      "id": "seed",
+      "label": "Seed",
+      "type": "seed",
+      "default": "",
+      "help": "Leave empty for a random world.",
+      "group": "World",
+      "wizard": true
+    },
+    {
+      "id": "levelType",
+      "label": "World type",
+      "type": "choice",
+      "default": "minecraft:normal",
+      "help": "",
+      "group": "World",
+      "wizard": true,
+      "options": [
+        {
+          "value": "minecraft:normal",
+          "label": "Normal"
+        },
+        {
+          "value": "minecraft:flat",
+          "label": "Superflat"
+        },
+        {
+          "value": "minecraft:large_biomes",
+          "label": "Large biomes"
+        },
+        {
+          "value": "minecraft:amplified",
+          "label": "Amplified"
+        }
+      ]
+    },
+    {
+      "id": "pvp",
+      "label": "Player vs player",
+      "type": "bool",
+      "default": "true",
+      "help": "Players can hurt each other.",
+      "group": "Players",
+      "values": [
+        "false",
+        "true"
+      ]
+    },
+    {
+      "id": "onlineMode",
+      "label": "Verify accounts (online mode)",
+      "type": "bool",
+      "default": "true",
+      "help": "Only real Minecraft accounts can join. Turn off only for offline LAN play.",
+      "group": "Players",
+      "values": [
+        "false",
+        "true"
+      ]
+    },
+    {
+      "id": "whitelist",
+      "label": "Whitelist only",
+      "type": "bool",
+      "default": "false",
+      "help": "Only players on the whitelist can join.",
+      "group": "Players",
+      "values": [
+        "false",
+        "true"
+      ]
+    },
+    {
+      "id": "viewDistance",
+      "label": "View distance (chunks)",
+      "type": "number",
+      "default": "10",
+      "help": "Lower uses less CPU.",
+      "group": "Performance",
+      "min": 3,
+      "max": 32
+    },
+    {
+      "id": "simulationDistance",
+      "label": "Simulation distance (chunks)",
+      "type": "number",
+      "default": "10",
+      "help": "How far away things keep moving.",
+      "group": "Performance",
+      "min": 3,
+      "max": 32
+    },
+    {
+      "id": "spawnProtection",
+      "label": "Spawn protection radius",
+      "type": "number",
+      "default": "16",
+      "help": "Only ops can build this close to spawn. 0 turns it off.",
+      "group": "World",
+      "min": 0,
+      "max": 256
+    },
+    {
+      "id": "allowFlight",
+      "label": "Allow flight",
+      "type": "bool",
+      "default": "false",
+      "help": "Needed by some mods; otherwise flying players get kicked.",
+      "group": "Players",
+      "values": [
+        "false",
+        "true"
+      ]
+    },
+    {
+      "id": "commandBlocks",
+      "label": "Command blocks",
+      "type": "bool",
+      "default": "false",
+      "help": "",
+      "group": "World",
+      "values": [
+        "false",
+        "true"
+      ]
+    },
+    {
+      "id": "rconPassword",
+      "label": "Remote console password",
+      "type": "password",
+      "default": "{random}",
+      "help": "Outpost uses this to read player lists and TPS.",
+      "group": "Advanced",
+      "hidden": true
+    }
+  ],
+  "files": [
+    {
+      "path": "eula.txt",
+      "content": "# Accepted in Outpost\neula={eula}\n"
+    }
+  ],
+  "configFiles": [
+    {
+      "path": "server.properties",
+      "format": "properties",
+      "values": {
+        "server-port": "{port}",
+        "motd": "{motd}",
+        "gamemode": "{gamemode}",
+        "difficulty": "{difficulty}",
+        "hardcore": "{hardcore}",
+        "max-players": "{maxPlayers}",
+        "level-name": "{levelName}",
+        "level-seed": "{seed}",
+        "level-type": "{levelType}",
+        "pvp": "{pvp}",
+        "online-mode": "{onlineMode}",
+        "white-list": "{whitelist}",
+        "enforce-whitelist": "{whitelist}",
+        "view-distance": "{viewDistance}",
+        "simulation-distance": "{simulationDistance}",
+        "spawn-protection": "{spawnProtection}",
+        "allow-flight": "{allowFlight}",
+        "enable-command-block": "{commandBlocks}",
+        "enable-rcon": "true",
+        "rcon.port": "{rconPort}",
+        "rcon.password": "{rconPassword}",
+        "broadcast-rcon-to-ops": "false",
+        "enable-query": "false"
+      }
+    }
+  ],
+  "saves": [
+    "{levelName}",
+    "{levelName}_nether",
+    "{levelName}_the_end",
+    "server.properties",
+    "whitelist.json",
+    "ops.json",
+    "banned-players.json",
+    "banned-ips.json"
+  ],
+  "stop": {
+    "command": "stop",
+    "timeout": 90
+  },
+  "commands": {
+    "say": "say {text}",
+    "kick": "kick {player}",
+    "ban": "ban {player}",
+    "unban": "pardon {player}",
+    "op": "op {player}",
+    "deop": "deop {player}",
+    "whitelistAdd": "whitelist add {player}",
+    "whitelistRemove": "whitelist remove {player}",
+    "save": "save-all"
+  },
+  "console": {
+    "input": true,
+    "autocomplete": [
+      "help",
+      "list",
+      "say ",
+      "tell ",
+      "kick ",
+      "ban ",
+      "pardon ",
+      "op ",
+      "deop ",
+      "whitelist add ",
+      "whitelist remove ",
+      "whitelist list",
+      "gamemode ",
+      "difficulty ",
+      "time set day",
+      "time set night",
+      "weather clear",
+      "weather rain",
+      "tp ",
+      "give ",
+      "gamerule ",
+      "save-all",
+      "seed",
+      "stop",
+      "tps",
+      "tick query",
+      "plugins",
+      "reload confirm"
+    ]
+  },
+  "query": {
+    "type": "rcon",
+    "port": "{rconPort}",
+    "password": "{rconPassword}",
+    "list": "list",
+    "listPattern": "players online:\\s*(.*)$",
+    "perf": [
+      {
+        "cmd": "tps",
+        "pattern": "TPS from last 1m, 5m, 15m:\\s*\\*?([0-9.]+)",
+        "kind": "tps"
+      },
+      {
+        "cmd": "tick query",
+        "pattern": "Average time per tick:\\s*([0-9.]+)\\s*ms",
+        "kind": "mspt"
+      }
+    ]
+  },
+  "log": {
+    "ready": "Done \\([0-9.,]+s\\)!",
+    "join": "\\]: ([A-Za-z0-9_]{1,16})(?:\\[[^\\]]*\\])? joined the game",
+    "leave": "\\]: ([A-Za-z0-9_]{1,16}) left the game",
+    "chat": "\\]: (?:\\[Not Secure\\] )?<([^>]+)> (.*)$",
+    "warn": "/WARN\\]",
+    "error": "/(?:ERROR|FATAL)\\]"
+  },
+  "backup": {
+    "before": [
+      "save-off",
+      "save-all flush"
+    ],
+    "waitFor": "Saved the (game|world)",
+    "after": [
+      "save-on"
+    ],
+    "timeout": 60
+  },
+  "players": {
+    "whitelist": {
+      "file": "whitelist.json",
+      "format": "mc-json"
+    },
+    "ops": {
+      "file": "ops.json",
+      "format": "mc-json"
+    },
+    "bans": {
+      "file": "banned-players.json",
+      "format": "mc-json"
+    }
+  },
+  "mods": {
+    "type": "modrinth",
+    "variants": {
+      "fabric": {
+        "loader": "fabric",
+        "folder": "mods",
+        "kind": "mod"
+      },
+      "forge": {
+        "loader": "forge",
+        "folder": "mods",
+        "kind": "mod"
+      },
+      "neoforge": {
+        "loader": "neoforge",
+        "folder": "mods",
+        "kind": "mod"
+      },
+      "paper": {
+        "loader": "paper",
+        "folder": "plugins",
+        "kind": "plugin"
+      }
+    }
+  },
+  "sleep": {
+    "wake": "minecraft"
+  },
+  "performance": {
+    "label": "TPS",
+    "max": 20
+  },
+  "import": {
+    "detect": [
+      "server.properties"
+    ],
+    "jar": true
+  }
+}

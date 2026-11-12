@@ -1,0 +1,274 @@
+{
+  "schema": 1,
+  "id": "minecraft-bedrock",
+  "name": "Minecraft: Bedrock Edition",
+  "short": "MB",
+  "color": "#3D7A3D",
+  "version": 1,
+  "description": "For Windows, consoles and phones.",
+  "source": {
+    "type": "bedrock"
+  },
+  "launch": {
+    "exe": "bedrock_server.exe",
+    "args": ""
+  },
+  "ports": [
+    {
+      "id": "port",
+      "name": "Game (IPv4)",
+      "default": 19132,
+      "protocol": "udp"
+    },
+    {
+      "id": "portv6",
+      "name": "Game (IPv6)",
+      "default": 19133,
+      "protocol": "udp"
+    }
+  ],
+  "settings": [
+    {
+      "id": "serverName",
+      "label": "Server name",
+      "type": "text",
+      "default": "Outpost Server",
+      "help": "Shown in the friends and LAN lists.",
+      "group": "General",
+      "wizard": true
+    },
+    {
+      "id": "gamemode",
+      "label": "Game mode",
+      "type": "choice",
+      "default": "survival",
+      "help": "",
+      "group": "World",
+      "wizard": true,
+      "options": [
+        {
+          "value": "survival",
+          "label": "Survival"
+        },
+        {
+          "value": "creative",
+          "label": "Creative"
+        },
+        {
+          "value": "adventure",
+          "label": "Adventure"
+        }
+      ]
+    },
+    {
+      "id": "difficulty",
+      "label": "Difficulty",
+      "type": "choice",
+      "default": "normal",
+      "help": "",
+      "group": "World",
+      "wizard": true,
+      "options": [
+        {
+          "value": "peaceful",
+          "label": "Peaceful"
+        },
+        {
+          "value": "easy",
+          "label": "Easy"
+        },
+        {
+          "value": "normal",
+          "label": "Normal"
+        },
+        {
+          "value": "hard",
+          "label": "Hard"
+        }
+      ]
+    },
+    {
+      "id": "maxPlayers",
+      "label": "Max players",
+      "type": "number",
+      "default": "10",
+      "help": "",
+      "group": "Players",
+      "wizard": true,
+      "min": 1,
+      "max": 100
+    },
+    {
+      "id": "levelName",
+      "label": "World name",
+      "type": "text",
+      "default": "Bedrock level",
+      "help": "",
+      "group": "World"
+    },
+    {
+      "id": "seed",
+      "label": "Seed",
+      "type": "seed",
+      "default": "",
+      "help": "Leave empty for a random world.",
+      "group": "World",
+      "wizard": true
+    },
+    {
+      "id": "allowCheats",
+      "label": "Allow cheats",
+      "type": "bool",
+      "default": "false",
+      "help": "",
+      "group": "World",
+      "values": [
+        "false",
+        "true"
+      ]
+    },
+    {
+      "id": "whitelist",
+      "label": "Allow list only",
+      "type": "bool",
+      "default": "false",
+      "help": "Only players on the allow list can join.",
+      "group": "Players",
+      "values": [
+        "false",
+        "true"
+      ]
+    },
+    {
+      "id": "onlineMode",
+      "label": "Require Xbox sign-in",
+      "type": "bool",
+      "default": "true",
+      "help": "",
+      "group": "Players",
+      "values": [
+        "false",
+        "true"
+      ]
+    },
+    {
+      "id": "viewDistance",
+      "label": "View distance (chunks)",
+      "type": "number",
+      "default": "32",
+      "help": "",
+      "group": "Performance",
+      "min": 5,
+      "max": 96
+    },
+    {
+      "id": "tickDistance",
+      "label": "Simulation distance (chunks)",
+      "type": "number",
+      "default": "4",
+      "help": "",
+      "group": "Performance",
+      "min": 4,
+      "max": 12
+    }
+  ],
+  "configFiles": [
+    {
+      "path": "server.properties",
+      "format": "properties",
+      "values": {
+        "server-name": "{serverName}",
+        "gamemode": "{gamemode}",
+        "difficulty": "{difficulty}",
+        "max-players": "{maxPlayers}",
+        "server-port": "{port}",
+        "server-portv6": "{portv6}",
+        "level-name": "{levelName}",
+        "level-seed": "{seed}",
+        "allow-cheats": "{allowCheats}",
+        "allow-list": "{whitelist}",
+        "online-mode": "{onlineMode}",
+        "view-distance": "{viewDistance}",
+        "tick-distance": "{tickDistance}"
+      }
+    }
+  ],
+  "saves": [
+    "worlds\\{levelName}",
+    "server.properties",
+    "allowlist.json",
+    "permissions.json"
+  ],
+  "stop": {
+    "command": "stop",
+    "timeout": 60
+  },
+  "commands": {
+    "say": "say {text}",
+    "kick": "kick {player}",
+    "op": "op {player}",
+    "deop": "deop {player}",
+    "whitelistAdd": "allowlist add {player}",
+    "whitelistRemove": "allowlist remove {player}",
+    "save": "save hold"
+  },
+  "console": {
+    "input": true,
+    "autocomplete": [
+      "help",
+      "list",
+      "say ",
+      "kick ",
+      "op ",
+      "deop ",
+      "allowlist add ",
+      "allowlist remove ",
+      "allowlist list",
+      "gamerule ",
+      "time set day",
+      "weather clear",
+      "tp ",
+      "give ",
+      "stop"
+    ]
+  },
+  "query": {
+    "type": "stdin",
+    "list": "list",
+    "listPattern": "players online:\\s*$",
+    "listNextLine": true
+  },
+  "log": {
+    "ready": "Server started\\.",
+    "join": "Player connected: (.+?), xuid",
+    "leave": "Player disconnected: (.+?), xuid",
+    "warn": "\\bWARN\\b",
+    "error": "\\bERROR\\b"
+  },
+  "backup": {
+    "before": [
+      "save hold"
+    ],
+    "poll": "save query",
+    "waitFor": "Data saved\\. Files are now ready to be copied|ready to be copied",
+    "after": [
+      "save resume"
+    ],
+    "timeout": 60
+  },
+  "players": {
+    "whitelist": {
+      "file": "allowlist.json",
+      "format": "mc-json"
+    }
+  },
+  "mods": {
+    "type": "folder",
+    "folder": "behavior_packs",
+    "label": "Behavior packs"
+  },
+  "sleep": {
+    "wake": "udp"
+  },
+  "notes": "To join from this same PC, Windows needs a one-time loopback exemption (Settings tab → Network → Allow joining from this PC)."
+}

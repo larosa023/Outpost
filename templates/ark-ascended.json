@@ -1,0 +1,198 @@
+{
+  "schema": 1,
+  "id": "ark-ascended",
+  "name": "ARK: Survival Ascended",
+  "short": "AR",
+  "color": "#4A7C8C",
+  "version": 1,
+  "description": "Tame dinosaurs. Needs 16 GB of RAM or more.",
+  "source": {
+    "type": "steamcmd",
+    "appId": 2430930
+  },
+  "launch": {
+    "exe": "ShooterGame\\Binaries\\Win64\\ArkAscendedServer.exe",
+    "args": "{map}?listen?SessionName=\"{serverName}\"?Port={port}?RCONEnabled=True?RCONPort={rconPort}?ServerAdminPassword={adminPassword}?ServerPassword={password}?MaxPlayers={maxPlayers} -WinLiveMaxPlayers={maxPlayers} {battleye} {mods|-mods=} -log"
+  },
+  "ports": [
+    {
+      "id": "port",
+      "name": "Game",
+      "default": 7777,
+      "protocol": "udp"
+    },
+    {
+      "id": "rconPort",
+      "name": "Remote console (this PC only)",
+      "default": 27020,
+      "protocol": "tcp",
+      "local": true
+    }
+  ],
+  "settings": [
+    {
+      "id": "serverName",
+      "label": "Server name",
+      "type": "text",
+      "default": "Outpost ARK",
+      "help": "",
+      "group": "General",
+      "wizard": true
+    },
+    {
+      "id": "map",
+      "label": "Map",
+      "type": "choice",
+      "default": "TheIsland_WP",
+      "help": "",
+      "group": "World",
+      "wizard": true,
+      "options": [
+        {
+          "value": "TheIsland_WP",
+          "label": "The Island"
+        },
+        {
+          "value": "ScorchedEarth_WP",
+          "label": "Scorched Earth"
+        },
+        {
+          "value": "TheCenter_WP",
+          "label": "The Center"
+        },
+        {
+          "value": "Aberration_WP",
+          "label": "Aberration"
+        },
+        {
+          "value": "Extinction_WP",
+          "label": "Extinction"
+        },
+        {
+          "value": "Ragnarok_WP",
+          "label": "Ragnarok"
+        },
+        {
+          "value": "Valguero_WP",
+          "label": "Valguero"
+        },
+        {
+          "value": "Astraeos_WP",
+          "label": "Astraeos"
+        }
+      ]
+    },
+    {
+      "id": "password",
+      "label": "Password",
+      "type": "password",
+      "default": "",
+      "help": "",
+      "group": "Players",
+      "wizard": true
+    },
+    {
+      "id": "maxPlayers",
+      "label": "Max players",
+      "type": "number",
+      "default": "10",
+      "help": "",
+      "group": "Players",
+      "wizard": true,
+      "min": 1,
+      "max": 70
+    },
+    {
+      "id": "battleye",
+      "label": "BattlEye anti-cheat",
+      "type": "bool",
+      "default": "-NoBattlEye",
+      "help": "",
+      "group": "Players",
+      "values": [
+        "-NoBattlEye",
+        ""
+      ]
+    },
+    {
+      "id": "mods",
+      "label": "CurseForge mod IDs",
+      "type": "text",
+      "default": "",
+      "help": "Separate with commas.",
+      "group": "Mods"
+    },
+    {
+      "id": "adminPassword",
+      "label": "Admin password",
+      "type": "password",
+      "default": "{random}",
+      "help": "",
+      "group": "Advanced"
+    }
+  ],
+  "saves": [
+    "ShooterGame\\Saved\\SavedArks",
+    "ShooterGame\\Saved\\Config\\WindowsServer"
+  ],
+  "stop": {
+    "rcon": [
+      "SaveWorld",
+      "DoExit"
+    ],
+    "ctrlC": true,
+    "timeout": 180
+  },
+  "commands": {
+    "say": "ServerChat {text}",
+    "kick": "KickPlayer {player}",
+    "ban": "BanPlayer {player}",
+    "unban": "UnbanPlayer {player}",
+    "save": "SaveWorld",
+    "via": "rcon"
+  },
+  "console": {
+    "input": true,
+    "via": "rcon",
+    "autocomplete": [
+      "ListPlayers",
+      "ServerChat ",
+      "SaveWorld",
+      "DestroyWildDinos",
+      "KickPlayer ",
+      "BanPlayer ",
+      "SetTimeOfDay ",
+      "Broadcast "
+    ]
+  },
+  "query": {
+    "type": "rcon",
+    "port": "{rconPort}",
+    "password": "{adminPassword}",
+    "list": "ListPlayers",
+    "listPattern": "^\\d+\\. (.+?), ",
+    "listMulti": true,
+    "ready": true
+  },
+  "logFile": "ShooterGame\\Saved\\Logs\\ShooterGame.log",
+  "log": {
+    "ready": "has successfully started|advertising for join",
+    "join": "(.+?) joined this ARK",
+    "leave": "(.+?) left this ARK",
+    "error": "Error:",
+    "warn": "Warning:"
+  },
+  "backup": {
+    "before": [
+      "SaveWorld"
+    ],
+    "timeout": 120
+  },
+  "mods": {
+    "type": "settings",
+    "settings": [
+      "mods"
+    ]
+  },
+  "notes": "ARK: Survival Ascended needs a lot of memory (12–16 GB while running)."
+}

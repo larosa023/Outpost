@@ -1,0 +1,77 @@
+{
+  "schema": 1,
+  "id": "satisfactory",
+  "name": "Satisfactory",
+  "short": "SF",
+  "color": "#E59B2B",
+  "version": 1,
+  "description": "Build factories together.",
+  "source": {
+    "type": "steamcmd",
+    "appId": 1690800
+  },
+  "launch": {
+    "exe": "FactoryServer.exe",
+    "args": "-log -unattended -Port={port} -ReliablePort={reliablePort}"
+  },
+  "ports": [
+    {
+      "id": "port",
+      "name": "Game",
+      "default": 7777,
+      "protocol": "both"
+    },
+    {
+      "id": "reliablePort",
+      "name": "Reliable messaging",
+      "default": 8888,
+      "protocol": "tcp"
+    }
+  ],
+  "settings": [
+    {
+      "id": "maxPlayers",
+      "label": "Max players",
+      "type": "number",
+      "default": "4",
+      "help": "",
+      "group": "Players",
+      "wizard": true,
+      "min": 1,
+      "max": 16
+    }
+  ],
+  "configFiles": [
+    {
+      "path": "FactoryGame\\Saved\\Config\\WindowsServer\\Game.ini",
+      "format": "ini",
+      "section": "/Script/Engine.GameSession",
+      "values": {
+        "MaxPlayers": "{maxPlayers}"
+      }
+    }
+  ],
+  "saves": [
+    "%LOCALAPPDATA%\\FactoryGame\\Saved\\SaveGames\\server",
+    "FactoryGame\\Saved\\Config\\WindowsServer"
+  ],
+  "stop": {
+    "ctrlC": true,
+    "timeout": 90
+  },
+  "console": {
+    "input": false
+  },
+  "logFile": "FactoryGame\\Saved\\Logs\\FactoryGame.log",
+  "log": {
+    "ready": "Engine is initialized|Server API listening",
+    "join": "Join succeeded: (.+)$",
+    "leave": "UNetConnection::Close: .*Name: (.+?),",
+    "error": "Error:",
+    "warn": "Warning:"
+  },
+  "mods": {
+    "type": "none"
+  },
+  "notes": "In Satisfactory, open Server Manager and add this server's address to claim it, name it and create a save."
+}

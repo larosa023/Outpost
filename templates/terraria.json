@@ -1,0 +1,209 @@
+{
+  "schema": 1,
+  "id": "terraria",
+  "name": "Terraria",
+  "short": "TR",
+  "color": "#4C9A3B",
+  "version": 1,
+  "description": "Dig, fight, explore, build.",
+  "source": {
+    "type": "terraria"
+  },
+  "launch": {
+    "exe": "TerrariaServer.exe",
+    "args": "-config serverconfig.txt"
+  },
+  "ports": [
+    {
+      "id": "port",
+      "name": "Game",
+      "default": 7777,
+      "protocol": "tcp"
+    }
+  ],
+  "settings": [
+    {
+      "id": "worldName",
+      "label": "World name",
+      "type": "text",
+      "default": "Outpost",
+      "help": "",
+      "group": "World",
+      "wizard": true
+    },
+    {
+      "id": "worldSize",
+      "label": "World size (new worlds)",
+      "type": "choice",
+      "default": "2",
+      "help": "",
+      "group": "World",
+      "wizard": true,
+      "options": [
+        {
+          "value": "1",
+          "label": "Small"
+        },
+        {
+          "value": "2",
+          "label": "Medium"
+        },
+        {
+          "value": "3",
+          "label": "Large"
+        }
+      ]
+    },
+    {
+      "id": "difficulty",
+      "label": "Difficulty (new worlds)",
+      "type": "choice",
+      "default": "0",
+      "help": "",
+      "group": "World",
+      "wizard": true,
+      "options": [
+        {
+          "value": "0",
+          "label": "Classic"
+        },
+        {
+          "value": "1",
+          "label": "Expert"
+        },
+        {
+          "value": "2",
+          "label": "Master"
+        },
+        {
+          "value": "3",
+          "label": "Journey"
+        }
+      ]
+    },
+    {
+      "id": "seed",
+      "label": "Seed",
+      "type": "seed",
+      "default": "",
+      "help": "Leave empty for a random world.",
+      "group": "World",
+      "wizard": true
+    },
+    {
+      "id": "maxPlayers",
+      "label": "Max players",
+      "type": "number",
+      "default": "8",
+      "help": "",
+      "group": "Players",
+      "wizard": true,
+      "min": 1,
+      "max": 255
+    },
+    {
+      "id": "password",
+      "label": "Password",
+      "type": "password",
+      "default": "",
+      "help": "",
+      "group": "Players",
+      "wizard": true
+    },
+    {
+      "id": "motd",
+      "label": "Message of the day",
+      "type": "text",
+      "default": "Welcome!",
+      "help": "",
+      "group": "General"
+    }
+  ],
+  "configFiles": [
+    {
+      "path": "serverconfig.txt",
+      "format": "properties",
+      "values": {
+        "world": "{dir}\\worlds\\{worldName}.wld",
+        "autocreate": "{worldSize}",
+        "worldname": "{worldName}",
+        "difficulty": "{difficulty}",
+        "seed": "{seed}",
+        "maxplayers": "{maxPlayers}",
+        "port": "{port}",
+        "password": "{password}",
+        "motd": "{motd}",
+        "worldpath": "{dir}\\worlds",
+        "secure": "1",
+        "upnp": "0"
+      }
+    }
+  ],
+  "saves": [
+    "worlds",
+    "serverconfig.txt",
+    "banlist.txt"
+  ],
+  "stop": {
+    "command": "exit",
+    "timeout": 60
+  },
+  "commands": {
+    "say": "say {text}",
+    "kick": "kick {player}",
+    "ban": "ban {player}",
+    "save": "save"
+  },
+  "console": {
+    "input": true,
+    "autocomplete": [
+      "help",
+      "playing",
+      "say ",
+      "kick ",
+      "ban ",
+      "save",
+      "time",
+      "dawn",
+      "noon",
+      "dusk",
+      "midnight",
+      "settle",
+      "motd",
+      "password",
+      "exit"
+    ]
+  },
+  "query": {
+    "type": "stdin",
+    "list": "playing",
+    "listPattern": "^:?\\s*(\\S.*?) \\(\\d+\\.\\d+\\.\\d+\\.\\d+:\\d+\\)$",
+    "listMulti": true
+  },
+  "log": {
+    "ready": "Server started",
+    "join": "^:?\\s*(.+?) has joined\\.",
+    "leave": "^:?\\s*(.+?) has left\\.",
+    "chat": "^:?\\s*<(.+?)> (.*)$",
+    "error": "(?i)exception"
+  },
+  "backup": {
+    "before": [
+      "save"
+    ],
+    "waitFor": "Validating world save|Backing up world file|Saving world data: 100",
+    "timeout": 60
+  },
+  "players": {
+    "bans": {
+      "file": "banlist.txt",
+      "format": "lines"
+    }
+  },
+  "mods": {
+    "type": "none"
+  },
+  "sleep": {
+    "wake": "tcp"
+  }
+}

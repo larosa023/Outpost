@@ -1,0 +1,95 @@
+{
+  "schema": 1,
+  "id": "enshrouded",
+  "name": "Enshrouded",
+  "short": "EN",
+  "color": "#6A8F9E",
+  "version": 1,
+  "description": "Survival in a world of fog, for up to 16.",
+  "source": {
+    "type": "steamcmd",
+    "appId": 2278520
+  },
+  "launch": {
+    "exe": "enshrouded_server.exe",
+    "args": ""
+  },
+  "ports": [
+    {
+      "id": "port",
+      "name": "Game",
+      "default": 15637,
+      "protocol": "udp"
+    }
+  ],
+  "settings": [
+    {
+      "id": "serverName",
+      "label": "Server name",
+      "type": "text",
+      "default": "Outpost Enshrouded",
+      "help": "",
+      "group": "General",
+      "wizard": true
+    },
+    {
+      "id": "password",
+      "label": "Password",
+      "type": "password",
+      "default": "",
+      "help": "Players need it to join.",
+      "group": "Players",
+      "wizard": true
+    },
+    {
+      "id": "maxPlayers",
+      "label": "Max players",
+      "type": "number",
+      "default": "16",
+      "help": "",
+      "group": "Players",
+      "wizard": true,
+      "min": 1,
+      "max": 16
+    }
+  ],
+  "configFiles": [
+    {
+      "path": "enshrouded_server.json",
+      "format": "json",
+      "values": {
+        "name": "{serverName}",
+        "saveDirectory": "./savegame",
+        "logDirectory": "./logs",
+        "ip": "0.0.0.0",
+        "queryPort": "#{port}",
+        "slotCount": "#{maxPlayers}",
+        "userGroups.1.password": "{password}"
+      }
+    }
+  ],
+  "saves": [
+    "savegame",
+    "enshrouded_server.json"
+  ],
+  "stop": {
+    "ctrlC": true,
+    "timeout": 90
+  },
+  "console": {
+    "input": false
+  },
+  "log": {
+    "ready": "HostOnline|Host is online",
+    "join": "Player '(.+?)' logged in",
+    "leave": "Remove Entity for Player '(.+?)'",
+    "error": "\\[error\\]",
+    "warn": "\\[warning\\]"
+  },
+  "mods": {
+    "type": "none"
+  },
+  "sleep": {
+    "wake": "udp"
+  }
+}

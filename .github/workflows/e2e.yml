@@ -1,0 +1,74 @@
+name: End-to-end (Windows)
+
+# Real game servers on a real Windows machine: create → download → start → ready → console command →
+# player action → live backup → graceful stop → restore (with safety backup) → start again → stop.
+on:
+  workflow_dispatch:
+    inputs:
+      games:
+        description: 'Games to test (JSON list)'
+        default: '["minecraft-java vanilla","minecraft-java paper","minecraft-java fabric","valheim","palworld","terraria"]'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install ziglang && ./build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: exe
+          path: dist/Outpost.exe
+
+  selftest:
+    needs: build
+    runs-on: windows-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: exe
+      - name: Self test
+        shell: pwsh
+        run: |
+          $p = Start-Process .\Outpost.exe -ArgumentList '--data','D:\op','--cli','selftest' -NoNewWindow -PassThru -Wait -RedirectStandardOutput out.txt
+          Get-Content out.txt
+          exit $p.ExitCode
+
+  game:
+    needs: selftest
+    runs-on: windows-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        game: ${{ fromJSON(github.event.inputs.games) }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: exe
+      - name: ${{ matrix.game }}
+        shell: pwsh
+        run: |
+          $args = @('--data','D:\op','--cli','e2e') + ('${{ matrix.game }}' -split ' ') + @('--timeout','1200')
+          $p = Start-Process .\Outpost.exe -ArgumentList $args -NoNewWindow -PassThru -RedirectStandardOutput out.txt
+          $seen = 0
+          while (-not $p.HasExited) {
+            Start-Sleep 5
+            $lines = @(Get-Content out.txt -ErrorAction SilentlyContinue)
+            if ($lines.Count -gt $seen) { $lines[$seen..($lines.Count-1)] | ForEach-Object { Write-Host $_ }; $seen = $lines.Count }
+          }
+          $lines = @(Get-Content out.txt -ErrorAction SilentlyContinue)
+          if ($lines.Count -gt $seen) { $lines[$seen..($lines.Count-1)] | ForEach-Object { Write-Host $_ } }
+          exit $p.ExitCode
+      - name: Logs
+        if: always()
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force logs | Out-Null
+          Copy-Item D:\op\outpost.log logs\ -ErrorAction SilentlyContinue
+          Get-ChildItem D:\op\servers -Recurse -Include console.log,crash-*.log,server.json,state.json -ErrorAction SilentlyContinue | ForEach-Object { Copy-Item $_.FullName ("logs\" + $_.Directory.Parent.Name + "-" + $_.Name) -ErrorAction SilentlyContinue }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: logs-${{ strategy.job-index }}
+          path: logs

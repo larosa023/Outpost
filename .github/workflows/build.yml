@@ -1,0 +1,93 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: 'Publish a release for the version in src/common.h'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check templates
+        run: |
+          python3 - <<'PY'
+          import json, glob, sys
+          ids = set()
+          for f in sorted(glob.glob('templates/*.json')):
+              if f.endswith('index.json'): continue
+              t = json.load(open(f))
+              for k in ('id', 'name', 'source', 'launch', 'ports'):
+                  assert k in t, f"{f}: missing {k}"
+              assert t['id'] not in ids, f"duplicate id {t['id']}"
+              ids.add(t['id'])
+          idx = json.load(open('templates/index.json'))
+          assert {e['id'] for e in idx['templates']} == ids, 'templates/index.json is out of date'
+          print(f"{len(ids)} templates ok")
+          PY
+      - name: Install Zig and NSIS
+        run: |
+          pip install ziglang
+          sudo apt-get update -qq && sudo apt-get install -y -qq nsis
+      - name: Build Outpost.exe
+        run: ./build.sh
+      - name: Installer and portable zip
+        run: |
+          makensis -V2 installer/outpost.nsi
+          cd dist
+          mkdir -p portable && cp Outpost.exe ../README.md portable/ && touch portable/portable
+          (cd portable && zip -q ../Outpost-portable.zip Outpost.exe README.md portable)
+          rm -rf portable
+          sha256sum Outpost.exe Outpost-Setup.exe Outpost-portable.zip > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Outpost-win-x64
+          path: |
+            dist/Outpost.exe
+            dist/Outpost-Setup.exe
+            dist/Outpost-portable.zip
+            dist/SHA256SUMS.txt
+      # Releases: push a tag like v1.0.0 (or run this workflow with "release" ticked).
+      # Versions with a "-" (1.1.0-beta.1) are published as pre-releases: the Beta channel.
+      - name: Decide release
+        id: rel
+        if: startsWith(github.ref, 'refs/tags/v') || inputs.release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VER=$(grep -oP 'OUTPOST_VERSION L"\K[^"]+' src/common.h)
+          TAG="v$VER"
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then TAG="${GITHUB_REF#refs/tags/}"; fi
+          [[ "$TAG" == "v$VER" ]] || { echo "Tag $TAG doesn't match OUTPOST_VERSION $VER"; exit 1; }
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          if [[ "$TAG" == *-* ]]; then echo "pre=true" >> "$GITHUB_OUTPUT"; else echo "pre=false" >> "$GITHUB_OUTPUT"; fi
+          if gh release view "$TAG" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1; then echo "publish=false" >> "$GITHUB_OUTPUT"; else echo "publish=true" >> "$GITHUB_OUTPUT"; fi
+      - name: Release
+        if: steps.rel.outputs.publish == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.rel.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: Outpost ${{ steps.rel.outputs.tag }}
+          prerelease: ${{ steps.rel.outputs.pre }}
+          body_path: CHANGELOG-latest.md
+          files: |
+            dist/Outpost.exe
+            dist/Outpost-Setup.exe
+            dist/Outpost-portable.zip
+            dist/SHA256SUMS.txt

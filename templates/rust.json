@@ -1,0 +1,172 @@
+{
+  "schema": 1,
+  "id": "rust",
+  "name": "Rust",
+  "short": "RU",
+  "color": "#C0472E",
+  "version": 1,
+  "description": "Survive, build, raid.",
+  "source": {
+    "type": "steamcmd",
+    "appId": 258550
+  },
+  "launch": {
+    "exe": "RustDedicated.exe",
+    "args": "-batchmode -nographics +server.ip 0.0.0.0 +server.port {port} +server.queryport {queryPort} +rcon.ip 127.0.0.1 +rcon.port {rconPort} +rcon.password \"{rconPassword}\" +rcon.web 0 +server.identity \"outpost\" +server.hostname \"{serverName}\" +server.description \"{serverDescription}\" +server.maxplayers {maxPlayers} +server.worldsize {worldSize} +server.seed {seed} +server.saveinterval 300"
+  },
+  "ports": [
+    {
+      "id": "port",
+      "name": "Game",
+      "default": 28015,
+      "protocol": "udp"
+    },
+    {
+      "id": "queryPort",
+      "name": "Server list",
+      "default": 28017,
+      "protocol": "udp"
+    },
+    {
+      "id": "rconPort",
+      "name": "Remote console (this PC only)",
+      "default": 28016,
+      "protocol": "tcp",
+      "local": true
+    }
+  ],
+  "settings": [
+    {
+      "id": "serverName",
+      "label": "Server name",
+      "type": "text",
+      "default": "Outpost Rust",
+      "help": "",
+      "group": "General",
+      "wizard": true
+    },
+    {
+      "id": "serverDescription",
+      "label": "Description",
+      "type": "text",
+      "default": "",
+      "help": "",
+      "group": "General"
+    },
+    {
+      "id": "maxPlayers",
+      "label": "Max players",
+      "type": "number",
+      "default": "50",
+      "help": "",
+      "group": "Players",
+      "wizard": true,
+      "min": 1,
+      "max": 500
+    },
+    {
+      "id": "worldSize",
+      "label": "Map size",
+      "type": "number",
+      "default": "3000",
+      "help": "1000 to 6000. Bigger maps use more RAM.",
+      "group": "World",
+      "wizard": true,
+      "min": 1000,
+      "max": 6000
+    },
+    {
+      "id": "seed",
+      "label": "Seed",
+      "type": "seed",
+      "default": "{randomNumber}",
+      "help": "",
+      "group": "World",
+      "wizard": true
+    },
+    {
+      "id": "rconPassword",
+      "label": "Remote console password",
+      "type": "password",
+      "default": "{random}",
+      "help": "",
+      "group": "Advanced",
+      "hidden": true
+    }
+  ],
+  "saves": [
+    "server\\outpost"
+  ],
+  "stop": {
+    "rcon": [
+      "server.save",
+      "quit"
+    ],
+    "ctrlC": true,
+    "timeout": 120
+  },
+  "commands": {
+    "say": "say {text}",
+    "kick": "kick \"{player}\"",
+    "ban": "ban \"{player}\"",
+    "unban": "unban {player}",
+    "op": "ownerid {player}",
+    "deop": "removeowner {player}",
+    "save": "server.save",
+    "via": "rcon"
+  },
+  "console": {
+    "input": true,
+    "via": "rcon",
+    "autocomplete": [
+      "status",
+      "players",
+      "say ",
+      "kick ",
+      "ban ",
+      "server.save",
+      "env.time ",
+      "weather.rain ",
+      "quit"
+    ]
+  },
+  "query": {
+    "type": "rcon",
+    "port": "{rconPort}",
+    "password": "{rconPassword}",
+    "list": "players",
+    "listPattern": "^\\d{17}\\s+\"(.+?)\"",
+    "listMulti": true,
+    "perf": [
+      {
+        "cmd": "fps",
+        "pattern": "([0-9.]+)\\s*FPS",
+        "kind": "fps"
+      }
+    ],
+    "ready": true
+  },
+  "log": {
+    "ready": "Server startup complete",
+    "join": "/\\d{17}/(.+?) joined \\[",
+    "leave": "/\\d{17}/(.+?) disconnecting:",
+    "error": "(?i)exception",
+    "warn": "(?i)\\bwarning\\b"
+  },
+  "backup": {
+    "before": [
+      "server.save"
+    ],
+    "timeout": 120
+  },
+  "mods": {
+    "type": "folder",
+    "folder": "oxide\\plugins",
+    "label": "Oxide plugins",
+    "note": "Install Oxide (uMod) into the server folder first."
+  },
+  "performance": {
+    "label": "Server FPS",
+    "max": 256
+  }
+}

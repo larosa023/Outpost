@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "templates": [
+    {
+      "id": "minecraft-java",
+      "version": 1
+    },
+    {
+      "id": "minecraft-bedrock",
+      "version": 1
+    },
+    {
+      "id": "valheim",
+      "version": 1
+    },
+    {
+      "id": "palworld",
+      "version": 1
+    },
+    {
+      "id": "terraria",
+      "version": 1
+    },
+    {
+      "id": "satisfactory",
+      "version": 1
+    },
+    {
+      "id": "project-zomboid",
+      "version": 1
+    },
+    {
+      "id": "enshrouded",
+      "version": 1
+    },
+    {
+      "id": "ark-ascended",
+      "version": 1
+    },
+    {
+      "id": "rust",
+      "version": 1
+    },
+    {
+      "id": "cs2",
+      "version": 1
+    },
+    {
+      "id": "7-days-to-die",
+      "version": 1
+    }
+  ]
+}

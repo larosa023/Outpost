@@ -1,0 +1,221 @@
+{
+  "schema": 1,
+  "id": "project-zomboid",
+  "name": "Project Zomboid",
+  "short": "PZ",
+  "color": "#A33A2E",
+  "version": 1,
+  "description": "This is how you died.",
+  "source": {
+    "type": "steamcmd",
+    "appId": 380870
+  },
+  "launch": {
+    "batch": "StartServer64.bat",
+    "args": "-servername {world} -adminpassword \"{adminPassword}\" -cachedir=\"{dir}\\Zomboid\""
+  },
+  "ram": {
+    "default": 4096,
+    "min": 2048,
+    "java": true
+  },
+  "ports": [
+    {
+      "id": "port",
+      "name": "Game",
+      "default": 16261,
+      "protocol": "udp"
+    },
+    {
+      "id": "udpPort",
+      "name": "Direct connection",
+      "default": 16262,
+      "protocol": "udp"
+    }
+  ],
+  "settings": [
+    {
+      "id": "world",
+      "label": "Server name",
+      "type": "text",
+      "default": "outpost",
+      "help": "Letters and numbers only.",
+      "group": "World",
+      "wizard": true
+    },
+    {
+      "id": "publicName",
+      "label": "Public name",
+      "type": "text",
+      "default": "Outpost Zomboid",
+      "help": "",
+      "group": "General",
+      "wizard": true
+    },
+    {
+      "id": "password",
+      "label": "Password",
+      "type": "password",
+      "default": "",
+      "help": "",
+      "group": "Players",
+      "wizard": true
+    },
+    {
+      "id": "maxPlayers",
+      "label": "Max players",
+      "type": "number",
+      "default": "16",
+      "help": "",
+      "group": "Players",
+      "wizard": true,
+      "min": 1,
+      "max": 100
+    },
+    {
+      "id": "pvp",
+      "label": "Player vs player",
+      "type": "bool",
+      "default": "true",
+      "help": "",
+      "group": "Players",
+      "values": [
+        "false",
+        "true"
+      ]
+    },
+    {
+      "id": "pauseEmpty",
+      "label": "Pause when empty",
+      "type": "bool",
+      "default": "true",
+      "help": "",
+      "group": "World",
+      "values": [
+        "false",
+        "true"
+      ]
+    },
+    {
+      "id": "public",
+      "label": "List publicly",
+      "type": "bool",
+      "default": "false",
+      "help": "",
+      "group": "Players",
+      "values": [
+        "false",
+        "true"
+      ]
+    },
+    {
+      "id": "workshopItems",
+      "label": "Workshop item IDs",
+      "type": "text",
+      "default": "",
+      "help": "Separate with semicolons.",
+      "group": "Mods"
+    },
+    {
+      "id": "modIds",
+      "label": "Mod IDs",
+      "type": "text",
+      "default": "",
+      "help": "Separate with semicolons. From each mod's Workshop page.",
+      "group": "Mods"
+    },
+    {
+      "id": "adminPassword",
+      "label": "Admin password",
+      "type": "password",
+      "default": "{random}",
+      "help": "",
+      "group": "Advanced"
+    }
+  ],
+  "configFiles": [
+    {
+      "path": "Zomboid\\Server\\{world}.ini",
+      "format": "properties",
+      "values": {
+        "PublicName": "{publicName}",
+        "Password": "{password}",
+        "MaxPlayers": "{maxPlayers}",
+        "PVP": "{pvp}",
+        "PauseEmpty": "{pauseEmpty}",
+        "Public": "{public}",
+        "DefaultPort": "{port}",
+        "UDPPort": "{udpPort}",
+        "WorkshopItems": "{workshopItems}",
+        "Mods": "{modIds}"
+      }
+    }
+  ],
+  "saves": [
+    "Zomboid\\Saves\\Multiplayer\\{world}",
+    "Zomboid\\Server",
+    "Zomboid\\db"
+  ],
+  "stop": {
+    "command": "quit",
+    "timeout": 120
+  },
+  "commands": {
+    "say": "servermsg \"{text}\"",
+    "kick": "kickuser \"{player}\"",
+    "ban": "banuser \"{player}\"",
+    "unban": "unbanuser \"{player}\"",
+    "op": "setaccesslevel \"{player}\" admin",
+    "deop": "setaccesslevel \"{player}\" none",
+    "whitelistAdd": "addusertowhitelist \"{player}\"",
+    "whitelistRemove": "removeuserfromwhitelist \"{player}\"",
+    "save": "save"
+  },
+  "console": {
+    "input": true,
+    "autocomplete": [
+      "help",
+      "players",
+      "servermsg ",
+      "kickuser ",
+      "banuser ",
+      "unbanuser ",
+      "setaccesslevel ",
+      "save",
+      "quit",
+      "additem ",
+      "teleport ",
+      "godmod ",
+      "reloadoptions"
+    ]
+  },
+  "query": {
+    "type": "stdin",
+    "list": "players",
+    "listPattern": "^-(.+)$",
+    "listMulti": true
+  },
+  "log": {
+    "ready": "SERVER STARTED",
+    "join": "fully-connected.*username=\"(.+?)\"",
+    "leave": "\\[disconnect\\].*username=\"(.+?)\"",
+    "error": "\\bERROR\\b",
+    "warn": "\\bWARN\\b"
+  },
+  "backup": {
+    "before": [
+      "save"
+    ],
+    "timeout": 60
+  },
+  "mods": {
+    "type": "settings",
+    "settings": [
+      "workshopItems",
+      "modIds"
+    ]
+  },
+  "sleep": {
+    "wake": "udp"
+  }
+}

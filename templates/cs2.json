@@ -1,0 +1,223 @@
+{
+  "schema": 1,
+  "id": "cs2",
+  "name": "Counter-Strike 2",
+  "short": "CS",
+  "color": "#D8A33A",
+  "version": 1,
+  "description": "Community and practice servers. The download is about 35 GB.",
+  "source": {
+    "type": "steamcmd",
+    "appId": 730
+  },
+  "launch": {
+    "exe": "game\\bin\\win64\\cs2.exe",
+    "args": "-dedicated -console -usercon -port {port} -maxplayers {maxPlayers} +game_type {mode} +map {map} +hostname \"{serverName}\" +sv_password \"{password}\" +rcon_password \"{rconPassword}\" {gslt|+sv_setsteamaccount } {lan}"
+  },
+  "ports": [
+    {
+      "id": "port",
+      "name": "Game",
+      "default": 27015,
+      "protocol": "both"
+    }
+  ],
+  "settings": [
+    {
+      "id": "serverName",
+      "label": "Server name",
+      "type": "text",
+      "default": "Outpost CS2",
+      "help": "",
+      "group": "General",
+      "wizard": true
+    },
+    {
+      "id": "mode",
+      "label": "Game mode",
+      "type": "choice",
+      "default": "0 +game_mode 1",
+      "help": "",
+      "group": "World",
+      "wizard": true,
+      "options": [
+        {
+          "value": "0 +game_mode 0",
+          "label": "Casual"
+        },
+        {
+          "value": "0 +game_mode 1",
+          "label": "Competitive"
+        },
+        {
+          "value": "0 +game_mode 2",
+          "label": "Wingman"
+        },
+        {
+          "value": "1 +game_mode 2",
+          "label": "Deathmatch"
+        },
+        {
+          "value": "1 +game_mode 0",
+          "label": "Arms Race"
+        }
+      ]
+    },
+    {
+      "id": "map",
+      "label": "Map",
+      "type": "choice",
+      "default": "de_dust2",
+      "help": "",
+      "group": "World",
+      "wizard": true,
+      "options": [
+        {
+          "value": "de_dust2",
+          "label": "Dust II"
+        },
+        {
+          "value": "de_mirage",
+          "label": "Mirage"
+        },
+        {
+          "value": "de_inferno",
+          "label": "Inferno"
+        },
+        {
+          "value": "de_nuke",
+          "label": "Nuke"
+        },
+        {
+          "value": "de_ancient",
+          "label": "Ancient"
+        },
+        {
+          "value": "de_anubis",
+          "label": "Anubis"
+        },
+        {
+          "value": "de_train",
+          "label": "Train"
+        },
+        {
+          "value": "de_overpass",
+          "label": "Overpass"
+        },
+        {
+          "value": "de_vertigo",
+          "label": "Vertigo"
+        },
+        {
+          "value": "cs_office",
+          "label": "Office"
+        },
+        {
+          "value": "cs_italy",
+          "label": "Italy"
+        }
+      ]
+    },
+    {
+      "id": "maxPlayers",
+      "label": "Max players",
+      "type": "number",
+      "default": "10",
+      "help": "",
+      "group": "Players",
+      "wizard": true,
+      "min": 2,
+      "max": 64
+    },
+    {
+      "id": "password",
+      "label": "Password",
+      "type": "password",
+      "default": "",
+      "help": "",
+      "group": "Players",
+      "wizard": true
+    },
+    {
+      "id": "lan",
+      "label": "LAN only",
+      "type": "bool",
+      "default": "",
+      "help": "",
+      "group": "Players",
+      "values": [
+        "",
+        "+sv_lan 1"
+      ]
+    },
+    {
+      "id": "gslt",
+      "label": "Game Server Login Token",
+      "type": "text",
+      "default": "",
+      "help": "Needed for internet players to see the server. Get one at steamcommunity.com/dev/managegameservers (app 730).",
+      "group": "Advanced"
+    },
+    {
+      "id": "rconPassword",
+      "label": "Remote console password",
+      "type": "password",
+      "default": "{random}",
+      "help": "",
+      "group": "Advanced",
+      "hidden": true
+    }
+  ],
+  "saves": [
+    "game\\csgo\\cfg"
+  ],
+  "stop": {
+    "rcon": [
+      "quit"
+    ],
+    "ctrlC": true,
+    "timeout": 30
+  },
+  "commands": {
+    "say": "say {text}",
+    "kick": "kick {player}",
+    "ban": "banid 0 {player}",
+    "via": "rcon"
+  },
+  "console": {
+    "input": true,
+    "via": "rcon",
+    "autocomplete": [
+      "status",
+      "changelevel ",
+      "mp_restartgame 1",
+      "mp_warmup_end",
+      "say ",
+      "kick ",
+      "bot_add",
+      "bot_kick",
+      "mp_autoteambalance 0",
+      "sv_cheats "
+    ]
+  },
+  "query": {
+    "type": "rcon",
+    "port": "{port}",
+    "password": "{rconPassword}",
+    "list": "status",
+    "listPattern": "^#?\\s*\\d+\\s+\\S+\\s+\\d+\\s+\\d+\\s+\\w+\\s+\\d+\\s+'?(.+?)'?\\s*$",
+    "listMulti": true,
+    "ready": true
+  },
+  "log": {
+    "ready": "SV:  Spawn Server|Host activate|GC Connection established",
+    "join": "Client #?\\d+ \"(.+?)\" connected",
+    "leave": "Dropped (.+?) from server",
+    "error": "(?i)\\berror\\b"
+  },
+  "mods": {
+    "type": "folder",
+    "folder": "game\\csgo\\addons",
+    "label": "Addons (Metamod / CounterStrikeSharp)"
+  }
+}

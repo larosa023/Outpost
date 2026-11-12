@@ -1,0 +1,167 @@
+{
+  "schema": 1,
+  "id": "valheim",
+  "name": "Valheim",
+  "short": "VH",
+  "color": "#3E6B8A",
+  "version": 1,
+  "description": "Viking survival for up to 10 players.",
+  "source": {
+    "type": "steamcmd",
+    "appId": 896660
+  },
+  "launch": {
+    "exe": "valheim_server.exe",
+    "args": "-nographics -batchmode -name \"{serverName}\" -port {port} -world \"{world}\" -password \"{password}\" -public {public} -savedir \"{dir}\\saves\" {crossplay} {preset|-preset }",
+    "env": {
+      "SteamAppId": "892970"
+    }
+  },
+  "ports": [
+    {
+      "id": "port",
+      "name": "Game",
+      "default": 2456,
+      "protocol": "udp",
+      "count": 3
+    }
+  ],
+  "settings": [
+    {
+      "id": "serverName",
+      "label": "Server name",
+      "type": "text",
+      "default": "Outpost Valheim",
+      "help": "Shown in the community server list.",
+      "group": "General",
+      "wizard": true
+    },
+    {
+      "id": "world",
+      "label": "World name",
+      "type": "text",
+      "default": "Dedicated",
+      "help": "The world save file's name.",
+      "group": "World",
+      "wizard": true
+    },
+    {
+      "id": "password",
+      "label": "Password",
+      "type": "password",
+      "default": "",
+      "help": "At least 5 characters, and not part of the server name. Required.",
+      "group": "Players",
+      "wizard": true,
+      "required": "minlen:5"
+    },
+    {
+      "id": "public",
+      "label": "List in community servers",
+      "type": "bool",
+      "default": "0",
+      "help": "Off: friends join by address. On: anyone can find it.",
+      "group": "Players",
+      "wizard": true,
+      "values": [
+        "0",
+        "1"
+      ]
+    },
+    {
+      "id": "crossplay",
+      "label": "Crossplay (Xbox / Game Pass)",
+      "type": "bool",
+      "default": "",
+      "help": "Lets Xbox and Game Pass players join. Joining then uses a join code instead of an address.",
+      "group": "Players",
+      "values": [
+        "",
+        "-crossplay"
+      ]
+    },
+    {
+      "id": "preset",
+      "label": "World preset",
+      "type": "choice",
+      "default": "",
+      "help": "",
+      "group": "World",
+      "wizard": true,
+      "options": [
+        {
+          "value": "",
+          "label": "Normal"
+        },
+        {
+          "value": "casual",
+          "label": "Casual"
+        },
+        {
+          "value": "easy",
+          "label": "Easy"
+        },
+        {
+          "value": "hard",
+          "label": "Hard"
+        },
+        {
+          "value": "hardcore",
+          "label": "Hardcore"
+        },
+        {
+          "value": "immersive",
+          "label": "Immersive"
+        },
+        {
+          "value": "hammer",
+          "label": "Hammer"
+        }
+      ]
+    }
+  ],
+  "saves": [
+    "saves"
+  ],
+  "stop": {
+    "ctrlC": true,
+    "timeout": 120
+  },
+  "console": {
+    "input": false
+  },
+  "log": {
+    "ready": "Game server connected|Opened Steam server|Registering lobby",
+    "joinId": "Got connection SteamID (\\d+)",
+    "join": "Got character ZDOID from (.+?) :",
+    "leaveId": "Closing socket (\\d+)",
+    "warn": "(?i)\\bwarning\\b",
+    "error": "(?i)exception|\\berror\\b"
+  },
+  "players": {
+    "ops": {
+      "file": "saves\\adminlist.txt",
+      "format": "lines",
+      "label": "Admins (Steam IDs)"
+    },
+    "bans": {
+      "file": "saves\\bannedlist.txt",
+      "format": "lines",
+      "label": "Banned (Steam IDs)"
+    },
+    "whitelist": {
+      "file": "saves\\permittedlist.txt",
+      "format": "lines",
+      "label": "Permitted (Steam IDs)"
+    }
+  },
+  "mods": {
+    "type": "folder",
+    "folder": "BepInEx\\plugins",
+    "label": "BepInEx plugins",
+    "note": "Install the BepInExPack for Valheim into the server folder first."
+  },
+  "sleep": {
+    "wake": "udp"
+  }
+}
