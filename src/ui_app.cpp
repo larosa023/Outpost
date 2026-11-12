@@ -42,6 +42,12 @@ static ID2D1Bitmap* Logo() {
 
 // ---------------------------------------------------------------- sidebar
 static float SidebarW() { return S(264); }
+static ScrollArea sideScroll;
+void SidebarWheel(float delta) {
+    float maxPos = std::max(0.f, sideScroll.content - sideScroll.view);
+    sideScroll.target = sideScroll.pos = std::max(0.f, std::min(maxPos, sideScroll.pos - delta));
+    Invalidate();
+}
 
 void DrawSidebar() {
     float w = SidebarW();
@@ -57,7 +63,6 @@ void DrawSidebar() {
     float bottomPanel = g_H - D(150) - (g_self.kind == SelfUpdateState::Ready ? D(52) : 0);
     float listBottom = bottomPanel - D(56);
     float rowH = D(58);
-    static ScrollArea sideScroll;
     float sy = BeginScroll(sideScroll, R(0, y, w, listBottom));
     for (size_t i = 0; i < g_servers.size(); ++i) {
         ServerView& v = g_servers[i];

@@ -14,11 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: pip install ziglang && ./build.sh
+      - run: pip install ziglang && sudo apt-get update -qq && sudo apt-get install -y -qq nsis && ./build.sh && makensis -V2 installer/outpost.nsi
       - uses: actions/upload-artifact@v4
         with:
           name: exe
-          path: dist/Outpost.exe
+          path: |
+            dist/Outpost.exe
+            dist/Outpost-Setup.exe
 
   selftest:
     needs: build
@@ -33,6 +35,30 @@ jobs:
           $p = Start-Process .\Outpost.exe -ArgumentList '--data','D:\op','--cli','selftest' -NoNewWindow -PassThru -Wait -RedirectStandardOutput out.txt
           Get-Content out.txt
           exit $p.ExitCode
+
+  installer:
+    needs: build
+    runs-on: windows-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: exe
+      - name: Install, run, uninstall (silent)
+        shell: pwsh
+        run: |
+          $p = Start-Process .\Outpost-Setup.exe -ArgumentList '/S' -PassThru; $p.WaitForExit()
+          $exe = "$env:LOCALAPPDATA\Programs\Outpost\Outpost.exe"
+          if (-not (Test-Path $exe)) { throw "not installed" }
+          $k = Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Outpost'
+          Write-Host "Installed $($k.DisplayVersion) to $($k.InstallLocation)"
+          if (-not (Test-Path "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Outpost.lnk")) { throw "no Start menu shortcut" }
+          $p = Start-Process $exe -ArgumentList '--cli','templates' -NoNewWindow -PassThru -RedirectStandardOutput t.txt; $p.WaitForExit()
+          Get-Content t.txt
+          if ((Get-Content t.txt).Count -lt 12) { throw "templates missing" }
+          $p = Start-Process "$env:LOCALAPPDATA\Programs\Outpost\uninstall.exe" -ArgumentList '/S' -PassThru; $p.WaitForExit()
+          Start-Sleep 3
+          if (Test-Path $exe) { throw "not uninstalled" }
+          Write-Host "Install and uninstall OK"
 
   game:
     needs: selftest

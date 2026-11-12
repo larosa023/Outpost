@@ -189,6 +189,7 @@ void CloseRawEditor(bool save);
 bool RawEditorOpen();
 void LayoutRawEditor();
 void ApplyTheme();
+void SidebarWheel(float delta);
 void ImportServer();
 void ApplyStartup();
 void UpdateNow();

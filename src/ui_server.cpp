@@ -16,6 +16,8 @@ namespace ui {
 
 static std::string J(const json::Value& v) { std::wstring o; json::WriteCompact(v, o); return WideToUtf8(o); }
 
+static std::wstring g_rawServer;
+
 // ================================================================ actions
 void ReloadServers(const std::wstring& select) {
     std::vector<ServerDef> defs = servers::LoadAll();
@@ -1300,7 +1302,7 @@ static float DrawNetwork(ServerView& v, float x, float y, float w) {
 // raw config editor (a native multi-line edit box over the page)
 static HWND g_raw = nullptr;
 static HFONT g_rawFont = nullptr;
-static std::wstring g_rawPath, g_rawServer;
+static std::wstring g_rawPath;
 static D2D1_RECT_F g_rawArea;
 bool RawEditorOpen() { return g_raw != nullptr; }
 void LayoutRawEditor() {
@@ -1571,7 +1573,7 @@ void DrawServer(float x0) {
     y = DrawTabs(x0, y);
     float pad = D(28);
     float x = x0 + pad, w = g_W - x0 - pad * 2;
-    if (g_tab != TabSettings && RawEditorOpen()) CloseRawEditor(false);
+    if (RawEditorOpen() && (g_tab != TabSettings || g_rawServer != v->def.id)) CloseRawEditor(false);
     g_consoleRect = {0, 0, 0, 0};
     switch (g_tab) {
         case TabOverview: DrawOverview(*v, x, y, w, g_H); break;

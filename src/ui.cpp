@@ -83,6 +83,7 @@ void Toast(const std::wstring& text, bool bad) {
 
 struct Modal { bool open = false; std::wstring title, text, ok; std::function<void()> onOk; bool danger = false; };
 static Modal g_modal;
+static size_t g_modalHotStart = 0;
 void Confirm(const std::wstring& title, const std::wstring& text, const std::wstring& ok, std::function<void()> onOk, bool danger) {
     g_modal = {true, title, text, ok, std::move(onOk), danger};
     Invalidate();
@@ -588,6 +589,7 @@ static void DrawModal() {
     float by = r.bottom - S(56);
     D2D1_RECT_F save = g_viewport;
     g_viewport = {0, 0, 0, 0};
+    g_modalHotStart = g_hot.size();
     bool wasOpen = true;
     g_modal.open = false;   // let the buttons themselves be hit
     Button(RW(r.right - S(24) - bw, by, bw, D(36)), g_modal.ok, 0, g_modal.danger ? Btn::Danger : Btn::Primary, [] {
@@ -609,8 +611,9 @@ static void Paint() {
     g_rt->SetTransform(D2D1::Matrix3x2F::Identity());
     g_rt->Clear(g_t.backdrop ? D2D1::ColorF(0, 0) : g_t.bg);
     if (g_t.backdrop) g_c.Fill(R(0, 0, g_W, g_H), g_t.bg);
+    if (RawEditorOpen() && g_page != Page::Server) CloseRawEditor(false);
     DrawSidebar();
-    float x0 = S(264) * std::min(1.f, g_d * 1.0f);
+    float x0 = S(264);
     switch (g_page) {
         case Page::Server: if (Sel()) DrawServer(x0); else DrawWelcome(x0); break;
         case Page::Wizard: DrawWizard(x0); break;
@@ -638,7 +641,7 @@ static void Paint() {
 static const HotRect* HitAt(float x, float y) {
     if (g_modal.open) {
         // only the modal's own buttons (registered last)
-        for (auto it = g_hot.rbegin(); it != g_hot.rend(); ++it) if (In(it->r, x, y)) return &*it;
+        for (size_t i = g_hot.size(); i-- > g_modalHotStart;) if (In(g_hot[i].r, x, y)) return &g_hot[i];
         return nullptr;
     }
     for (auto it = g_hot.rbegin(); it != g_hot.rend(); ++it) if (In(it->r, x, y)) return &*it;
@@ -861,6 +864,7 @@ static void Scroll(float delta) {
         return;
     }
     if (ConsoleHit(g_mx, g_my)) { ConsoleWheel(delta); return; }
+    if (g_mx < S(264)) { SidebarWheel(delta); return; }
     ScrollArea& sa = PageScroll();
     float maxPos = std::max(0.f, sa.content - sa.view);
     sa.target = std::max(0.f, std::min(maxPos, sa.target - delta));
@@ -1163,7 +1167,7 @@ HWND UiCreate(HINSTANCE inst, int show, const UiStart& start) {
     // keep it on a screen that still exists
     RECT want{x, y, x + w, y + h};
     if (x == CW_USEDEFAULT || !MonitorFromRect(&want, MONITOR_DEFAULTTONULL)) { x = CW_USEDEFAULT; y = CW_USEDEFAULT; }
-    HWND hwnd = CreateWindowExW(WS_EX_APPWINDOW, wc.lpszClassName, L"Outpost", WS_OVERLAPPEDWINDOW, x, y, w, h, nullptr, nullptr, inst, nullptr);
+    HWND hwnd = CreateWindowExW(WS_EX_APPWINDOW, wc.lpszClassName, L"Outpost", WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN, x, y, w, h, nullptr, nullptr, inst, nullptr);
     if (!hwnd) return nullptr;
     Layout();
     hostlink::Init(hwnd);
