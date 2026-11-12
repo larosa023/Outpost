@@ -9,6 +9,7 @@
 #include <bcrypt.h>
 #include <algorithm>
 #include <regex>
+#include <shellapi.h>
 
 namespace provision {
 
@@ -447,9 +448,40 @@ static bool InstallUrl(ServerDef& s, const Template& t, const Progress& progress
     return true;
 }
 
+// Things a game's server needs on the PC (Terraria: Microsoft XNA Framework 4.0). Installed once, with Windows' permission prompt.
+static bool Prerequisites(const Template& t, const Progress& progress, std::atomic<bool>* cancel, std::wstring* error) {
+    const json::Value* pre = t.Obj(L"prerequisites");
+    if (!pre || pre->type != json::Value::Array) return true;
+    for (auto& p : pre->arr) {
+        std::wstring check = ExpandEnv(p.GetStr(L"check")), name = p.GetStr(L"name");
+        if (!check.empty() && GetFileAttributesW(check.c_str()) != INVALID_FILE_ATTRIBUTES) continue;
+        std::wstring file = DownloadDir() + L"\\" + p.GetStr(L"file", L"prerequisite.exe");
+        if (!Fetch(p.GetStr(L"url"), file, name, p.GetStr(L"sha256"), BCRYPT_SHA256_ALGORITHM, progress, cancel, error)) return false;
+        if (progress) progress(-1, L"Installing " + name + L" (Windows may ask for permission)");
+        std::wstring run = p.GetStr(L"run"), args = p.GetStr(L"args");
+        for (size_t q; (q = args.find(L"{file}")) != std::wstring::npos;) args.replace(q, 6, file);
+        if (run.empty()) run = file;
+        SHELLEXECUTEINFOW sei{sizeof(sei)};
+        sei.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_NOASYNC;
+        sei.lpVerb = p.GetBool(L"elevated", false) ? L"runas" : L"open";
+        sei.lpFile = run.c_str();
+        sei.lpParameters = args.c_str();
+        sei.nShow = SW_HIDE;
+        if (!ShellExecuteExW(&sei) || !sei.hProcess) { *error = name + L" is needed and wasn't installed (permission declined?)."; return false; }
+        WaitForSingleObject(sei.hProcess, 10 * 60 * 1000);
+        DWORD code = 1;
+        GetExitCodeProcess(sei.hProcess, &code);
+        CloseHandle(sei.hProcess);
+        Log(L"prerequisite %ls: exit code %lu", name.c_str(), code);
+        if (!check.empty() && GetFileAttributesW(check.c_str()) == INVALID_FILE_ATTRIBUTES) { *error = name + L" didn't install (code " + std::to_wstring(code) + L")."; return false; }
+    }
+    return true;
+}
+
 bool Install(ServerDef& s, const Template& t, const Progress& progress, std::atomic<bool>* cancel, std::wstring* error) {
     Log(L"install %ls (%ls %ls %ls)", s.id.c_str(), t.id.c_str(), s.variant.c_str(), s.version.c_str());
     EnsureDir(DownloadDir());
+    if (!Prerequisites(t, progress, cancel, error)) return false;
     bool ok = false;
     if (t.sourceType == L"minecraft") ok = InstallMinecraft(s, t, progress, cancel, error);
     else if (t.sourceType == L"bedrock") ok = InstallBedrock(s, progress, cancel, error);

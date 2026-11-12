@@ -221,9 +221,11 @@ static int E2E(const std::wstring& game, const std::wstring& variant, int second
     }
     // live backup
     SendTo(s.id, "{\"type\":\"backup\",\"label\":\"e2e\"}");
+    // the console backlog is replayed on connect, so a quick backup isn't missed
     bool backed = Follow(s.id, 300, [&](const json::Value& v) {
-        if (v.GetStr(L"ev") == L"notify" && v.GetStr(L"kind") == L"backup") return 1;
-        if (v.GetStr(L"ev") == L"notify" && v.GetStr(L"kind") == L"backup-failed") return -1;
+        if (v.GetStr(L"ev") != L"line") return 0;
+        if (v.GetStr(L"s").find(L"Backup saved:") != std::wstring::npos) return 1;
+        if (v.GetStr(L"s").find(L"Backup failed") != std::wstring::npos) return -1;
         return 0;
     }, false);
     auto list = backup::List(s);
@@ -341,18 +343,16 @@ int Main(int argc, wchar_t** argv) {
         for (size_t i = 1; i < a.size(); ++i) text += (i > 1 ? L" " : L"") + a[i];
         json::Value v = json::Value::MakeObject();
         v.Set(L"type", json::Value::Str(L"command")); v.Set(L"text", json::Value::Str(text));
-        std::wstring o; json::Write(v, o);
-        std::wstring one; for (wchar_t c : o) if (c != L'\n') one += c;
-        return SendTo(s.id, WideToUtf8(one)) ? 0 : 1;
+        std::wstring o; json::WriteCompact(v, o);
+        return SendTo(s.id, WideToUtf8(o)) ? 0 : 1;
     }
     if (cmd == L"action" && a.size() >= 2) {
         json::Value v = json::Value::MakeObject();
         v.Set(L"type", json::Value::Str(L"action")); v.Set(L"action", json::Value::Str(a[1]));
         v.Set(L"player", json::Value::Str(a.size() > 2 ? a[2] : L"")); v.Set(L"text", json::Value::Str(a.size() > 3 ? a[3] : L""));
-        std::wstring o; json::Write(v, o);
-        std::wstring one; for (wchar_t c : o) if (c != L'\n') one += c;
+        std::wstring o; json::WriteCompact(v, o);
         std::string reply;
-        SendTo(s.id, WideToUtf8(one), &reply, 8000);
+        SendTo(s.id, WideToUtf8(o), &reply, 8000);
         Out(Utf8ToWide(reply));
         return reply.find("\"ok\":true") != std::string::npos ? 0 : 1;
     }
@@ -366,8 +366,12 @@ int Main(int argc, wchar_t** argv) {
         Template t;
         servers::LoadTemplate(s, t);
         if (host::IsRunning(s.id)) {
+            auto newest = [&] { auto l = backup::List(s); return l.empty() ? std::wstring() : l[0].path; };
+            std::wstring before = newest();
             SendTo(s.id, "{\"type\":\"backup\",\"label\":\"manual\"}");
-            bool ok = Follow(s.id, 600, [](const json::Value& v) { return v.GetStr(L"kind") == L"backup" ? 1 : v.GetStr(L"kind") == L"backup-failed" ? -1 : 0; }, false);
+            bool ok = false;
+            for (int i = 0; i < 6000 && !ok; ++i) { Sleep(100); ok = newest() != before; }
+            Out(ok ? L"Backed up." : L"The backup didn't finish.");
             return ok ? 0 : 1;
         }
         std::wstring path;

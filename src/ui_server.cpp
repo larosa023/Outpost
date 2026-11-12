@@ -14,7 +14,7 @@
 
 namespace ui {
 
-static std::string J(const json::Value& v) { std::wstring o; json::Write(v, o); std::wstring one; for (wchar_t c : o) if (c != L'\n') one += c; return WideToUtf8(one); }
+static std::string J(const json::Value& v) { std::wstring o; json::WriteCompact(v, o); return WideToUtf8(o); }
 
 // ================================================================ actions
 void ReloadServers(const std::wstring& select) {

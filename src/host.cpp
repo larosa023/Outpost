@@ -76,7 +76,8 @@ bool Launch(const ServerDef& s, std::wstring* error) {
     buf.push_back(0);
     STARTUPINFOW si{sizeof(si)};
     PROCESS_INFORMATION pi{};
-    DWORD flags = DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP | CREATE_BREAKAWAY_FROM_JOB;
+    // no CREATE_NEW_PROCESS_GROUP: that would switch Ctrl+C off for the host and every game it starts (Valheim stops on Ctrl+C)
+    DWORD flags = DETACHED_PROCESS | CREATE_BREAKAWAY_FROM_JOB;
     BOOL ok = CreateProcessW(exe.c_str(), buf.data(), nullptr, nullptr, FALSE, flags, nullptr, s.root.c_str(), &si, &pi);
     if (!ok) ok = CreateProcessW(exe.c_str(), buf.data(), nullptr, nullptr, FALSE, flags & ~CREATE_BREAKAWAY_FROM_JOB, nullptr, s.root.c_str(), &si, &pi);
     if (!ok) { if (error) *error = L"Couldn't start the server host (error " + std::to_wstring(GetLastError()) + L")."; return false; }
@@ -93,7 +94,7 @@ bool Launch(const ServerDef& s, std::wstring* error) {
 }
 
 // ================================================================ the host
-static std::string J(const json::Value& v) { std::wstring o; json::Write(v, o); std::wstring one; for (wchar_t c : o) if (c != L'\n') one += c; return WideToUtf8(one); }
+static std::string J(const json::Value& v) { std::wstring o; json::WriteCompact(v, o); return WideToUtf8(o); }
 
 static bool Rx(const std::wstring& pat0, std::wregex& out) {
     if (pat0.empty()) return false;
@@ -183,6 +184,7 @@ private:
     std::wstring message_;
     proc::Child child_;
     std::thread reader_, tailer_;
+    std::atomic<bool> readerDone_{false};
     std::atomic<bool> tailStop_{false};
     proc::Meter meter_;
     proc::Usage usage_;
@@ -511,6 +513,18 @@ void Host::OnLine(const std::wstring& raw, const std::wstring& kindOverride) {
     if (statusChanged) BroadcastStatus();
 }
 
+// Some servers (Palworld) print a few lines as UTF-16: drop the zero bytes so they read as text
+static std::wstring Decode(std::string line) {
+    size_t zeros = 0;
+    for (char c : line) zeros += c == 0;
+    if (zeros && zeros * 3 >= line.size()) {
+        std::string clean;
+        for (char c : line) if (c) clean += c;
+        line = clean;
+    }
+    return Utf8ToWide(line);
+}
+
 void Host::ReaderLoop(HANDLE out) {
     std::string pending;
     char buf[8192];
@@ -521,12 +535,13 @@ void Host::ReaderLoop(HANDLE out) {
         while ((p = pending.find('\n')) != std::string::npos) {
             std::string line = pending.substr(0, p);
             pending.erase(0, p + 1);
-            OnLine(Utf8ToWide(line));
+            OnLine(Decode(line));
         }
         // a prompt without a newline (e.g. "> "): show long partial lines anyway
-        if (pending.size() > 8192) { OnLine(Utf8ToWide(pending)); pending.clear(); }
+        if (pending.size() > 8192) { OnLine(Decode(pending)); pending.clear(); }
     }
-    if (!pending.empty()) OnLine(Utf8ToWide(pending));
+    if (!pending.empty()) OnLine(Decode(pending));
+    readerDone_ = true;
 }
 
 void Host::TailLog(std::wstring path) {
@@ -687,6 +702,7 @@ bool Host::StartServer() {
     Log(L"host %ls: %ls %ls", s_.id.c_str(), exe.c_str(), args.c_str());
     if (!child_.Start(exe, args, s_.FilesDir(), env, limit, &err)) { SetState(St::Error, err); return false; }
     if (reader_.joinable()) reader_.join();
+    readerDone_ = false;
     HANDLE out = child_.out;
     reader_ = std::thread([this, out] { ReaderLoop(out); });
     std::wstring logFile = t_.raw.GetStr(L"logFile");
@@ -748,6 +764,9 @@ void Host::BeginStop(bool forSleep, bool forRestart) {
 }
 
 void Host::FinishStopped() {
+    // a helper the game started may still hold its console open: give the reader a moment, then end the whole job
+    for (int i = 0; i < 30 && !readerDone_; ++i) Sleep(100);
+    if (!readerDone_) { Log(L"host %ls: closing leftover processes", s_.id.c_str()); child_.Kill(); }
     if (reader_.joinable()) reader_.join();
     tailStop_ = true;
     if (tailer_.joinable()) tailer_.join();
@@ -1312,6 +1331,7 @@ static LRESULT CALLBACK HostWndProc(HWND h, UINT msg, WPARAM wp, LPARAM lp) {
 
 int Main(const std::wstring& root) {
     SetProcessShutdownParameters(0x3FF, 0);   // be told early at shutdown
+    SetConsoleCtrlHandler(nullptr, FALSE);     // games we start inherit this: make sure Ctrl+C reaches them
     Host h(root);
     g_host = &h;
     WNDCLASSW wc{};
@@ -1322,7 +1342,8 @@ int Main(const std::wstring& root) {
     HWND hwnd = CreateWindowExW(WS_EX_TOOLWINDOW, wc.lpszClassName, L"Outpost host", WS_POPUP, 0, 0, 0, 0, nullptr, nullptr, wc.hInstance, nullptr);
     int code = 0;
     std::atomic<bool> done{false};
-    std::thread worker([&] { code = h.Run(); done = true; if (hwnd) PostMessageW(hwnd, WM_CLOSE, 0, 0); });
+    DWORD mainTid = GetCurrentThreadId();
+    std::thread worker([&] { code = h.Run(); done = true; if (!hwnd || !PostMessageW(hwnd, WM_CLOSE, 0, 0)) PostThreadMessageW(mainTid, WM_QUIT, 0, 0); });
     MSG msg;
     while (!done && GetMessageW(&msg, nullptr, 0, 0) > 0) {
         if (msg.message == WM_CLOSE && msg.hwnd == hwnd && done) break;

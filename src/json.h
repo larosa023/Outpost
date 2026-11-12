@@ -195,4 +195,19 @@ inline void Write(const Value& v, std::wstring& out, int indent = 0) {
     }
 }
 
+// One line, no spaces: for pipes and logs
+inline void WriteCompact(const Value& v, std::wstring& out) {
+    switch (v.type) {
+        case Value::Array:
+            out += L'[';
+            for (size_t i = 0; i < v.arr.size(); ++i) { if (i) out += L','; WriteCompact(v.arr[i], out); }
+            out += L']'; break;
+        case Value::Object:
+            out += L'{';
+            for (size_t i = 0; i < v.obj.size(); ++i) { if (i) out += L','; Escape(v.obj[i].first, out); out += L':'; WriteCompact(v.obj[i].second, out); }
+            out += L'}'; break;
+        default: Write(v, out); break;
+    }
+}
+
 } // namespace json

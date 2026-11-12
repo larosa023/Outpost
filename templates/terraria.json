@@ -4,7 +4,7 @@
   "name": "Terraria",
   "short": "TR",
   "color": "#4C9A3B",
-  "version": 1,
+  "version": 2,
   "description": "Dig, fight, explore, build.",
   "source": {
     "type": "terraria"
@@ -205,5 +205,16 @@
   },
   "sleep": {
     "wake": "tcp"
-  }
+  },
+  "prerequisites": [
+    {
+      "name": "Microsoft XNA Framework 4.0",
+      "check": "%WINDIR%\\Microsoft.NET\\assembly\\GAC_32\\Microsoft.Xna.Framework\\v4.0_4.0.0.0__842cf8be1de50553\\Microsoft.Xna.Framework.dll",
+      "url": "https://download.microsoft.com/download/A/C/2/AC2C903B-E6E8-42C2-9FD7-BEBAC362A930/xnafx40_redist.msi",
+      "file": "xnafx40_redist.msi",
+      "run": "msiexec.exe",
+      "args": "/i \"{file}\" /quiet /norestart",
+      "elevated": true
+    }
+  ]
 }

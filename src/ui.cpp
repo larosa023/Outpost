@@ -751,7 +751,7 @@ static void RestoreFrom(const std::wstring& text) {
     std::wstring id = v.GetStr(L"server");
     for (size_t i = 0; i < g_servers.size(); ++i) if (g_servers[i].def.id == id) g_sel = (int)i;
     g_page = (Page)(int)v.GetNum(L"page", (int)Page::Server);
-    if (g_page == Page::Wizard) g_page = Page::Server;
+    if (g_page == Page::Wizard) StartWizard();
     g_tab = (int)v.GetNum(L"tab", 0);
     g_restoredFromState = true;
     int running = 0;

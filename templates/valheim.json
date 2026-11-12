@@ -4,7 +4,7 @@
   "name": "Valheim",
   "short": "VH",
   "color": "#3E6B8A",
-  "version": 1,
+  "version": 2,
   "description": "Viking survival for up to 10 players.",
   "source": {
     "type": "steamcmd",
@@ -131,7 +131,7 @@
     "input": false
   },
   "log": {
-    "ready": "Game server connected|Opened Steam server|Registering lobby",
+    "ready": "Opened Steam server|Registering lobby",
     "joinId": "Got connection SteamID (\\d+)",
     "join": "Got character ZDOID from (.+?) :",
     "leaveId": "Closing socket (\\d+)",

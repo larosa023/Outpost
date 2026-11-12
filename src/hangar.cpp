@@ -7,10 +7,8 @@
 void HangarRequest::Reply(json::Value v) {
     v.Set(L"id", json::Value::Num(req.GetNum(L"id", 0)));
     std::wstring o;
-    json::Write(v, o);
-    std::wstring one;
-    for (wchar_t c : o) if (c != L'\n') one += c;
-    if (conn) conn->Send(WideToUtf8(one));
+    json::WriteCompact(v, o);
+    if (conn) conn->Send(WideToUtf8(o));
 }
 
 namespace hangar {
