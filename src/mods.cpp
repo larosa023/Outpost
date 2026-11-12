@@ -223,7 +223,9 @@ std::vector<ModFile> List(const ServerDef& s, const Template& t) {
         if (f == INVALID_HANDLE_VALUE) return;
         do {
             std::wstring n = fd.cFileName;
-            if (n == L"." || n == L".." || n == L".disabled") continue;
+            if (n == L"." || n == L".." || n == L".disabled" || n[0] == L'.') continue;
+            // Paper and Fabric keep config folders next to the jars: only files are mods there
+            if ((fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && t.modsType == L"modrinth") continue;
             ModFile mf;
             mf.file = n; mf.title = n; mf.enabled = enabled; mf.source = L"file";
             mf.size = ((uint64_t)fd.nFileSizeHigh << 32) | fd.nFileSizeLow;

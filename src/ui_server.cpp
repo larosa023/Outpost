@@ -433,8 +433,8 @@ static float Banner(float x, float y, float w, D2D1_COLOR_F color, wchar_t glyph
 }
 
 static float Bar(float x, float y, float w, const std::wstring& label, const std::wstring& value, float frac, D2D1_COLOR_F color) {
-    Text(label, x, y, w / 2, F(12.5f), g_t.subtext);
-    Text(value, x + w / 2, y, w / 2, F(12.5f), g_t.text, DWRITE_FONT_WEIGHT_SEMI_BOLD, DWRITE_TEXT_ALIGNMENT_TRAILING);
+    Text(label, x, y, w / 3, F(12.5f), g_t.subtext);
+    Text(value, x + w / 3, y, w * 2 / 3, F(12.5f), g_t.text, DWRITE_FONT_WEIGHT_SEMI_BOLD, DWRITE_TEXT_ALIGNMENT_TRAILING);
     float pct = frac < 0 ? -2.f : std::max(0.f, std::min(1.f, frac)) * 100.f;
     if (pct > -1) ProgressBar(RW(x, y + D(22), w, S(6)), (int)pct, color);
     else g_c.FillRound(RW(x, y + D(22), w, S(6)), S(3), g_t.surfaceStrong);
@@ -641,7 +641,10 @@ static void DrawOverview(ServerView& v, float x, float y0, float w, float bottom
     Text(sub, c3.left + p, c3.top + p + D(56), cw - p * 2, F(12), g_t.faint);
     float b1 = ButtonW(L"Back up now", icon::Save), b2 = ButtonW(L"Restore", icon::Restore);
     Button(RW(c3.left + p, c3.bottom - p - D(34), b1, D(34)), v.backingUp ? L"Backing up…" : L"Back up now", icon::Save, Btn::Secondary, [id] { if (ServerView* s = FindServer(id)) BackupNow(*s); }, !v.backingUp && !v.job.active);
-    Button(RW(c3.left + p + b1 + D(8), c3.bottom - p - D(34), b2, D(34)), L"Restore", icon::Restore, Btn::Ghost, [] { SetTab(TabBackups); }, !v.job.active);
+    if (b1 + b2 + D(8) <= cw - p * 2)
+        Button(RW(c3.left + p + b1 + D(8), c3.bottom - p - D(34), b2, D(34)), L"Restore", icon::Restore, Btn::Ghost, [] { SetTab(TabBackups); }, !v.job.active);
+    else
+        IconButton(RW(c3.left + p + b1 + D(6), c3.bottom - p - D(34), D(34), D(34)), icon::Restore, [] { SetTab(TabBackups); }, !v.job.active);
     y += ch + gap;
     // console + player list
     float lw = (w - gap) * 0.62f, rw2 = w - gap - lw, h2 = std::max(D(300), bottom - y - D(20) + sa.pos);

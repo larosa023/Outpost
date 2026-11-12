@@ -299,6 +299,13 @@ bool GameInForeground() {
     if (SUCCEEDED(SHQueryUserNotificationState(&st)) && (st == QUNS_RUNNING_D3D_FULL_SCREEN || st == QUNS_BUSY)) return true;
     HWND fg = GetForegroundWindow();
     if (!fg || fg == GetDesktopWindow() || fg == GetShellWindow()) return false;
+    DWORD pid = 0;
+    GetWindowThreadProcessId(fg, &pid);
+    if (pid == GetCurrentProcessId()) return false;
+    if (FindWindowW(L"Outpost.larosa023.Main", nullptr) == fg) return false;
+    // normal (even maximized) windows have a title bar; borderless full-screen games don't
+    LONG style = GetWindowLongW(fg, GWL_STYLE);
+    if ((style & WS_CAPTION) == WS_CAPTION) return false;
     wchar_t cls[64];
     GetClassNameW(fg, cls, 64);
     if (!wcscmp(cls, L"WorkerW") || !wcscmp(cls, L"Progman")) return false;
