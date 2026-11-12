@@ -4,6 +4,9 @@ name: UI screenshots (Windows)
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -80,3 +83,15 @@ jobs:
         with:
           name: screens
           path: shots
+      - name: Push screenshots to the ci-screens branch
+        if: always()
+        shell: pwsh
+        run: |
+          cd shots
+          git init -q
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git checkout -q -b ci-screens
+          git add -A
+          git commit -qm "UI screenshots from run ${{ github.run_id }}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci-screens
